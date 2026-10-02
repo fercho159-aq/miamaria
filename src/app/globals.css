@@ -1,26 +1,121 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* Mía María · negro, dorado y blanco */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-tinta: #0d0d0d;
+  --color-carbon: #1a1a1a;
+  --color-oro: #cba666;
+  --color-oro-claro: #e3cc9a;
+  --color-oro-oscuro: #a8843f;
+  --color-marfil: #f7f5f1;
+  --color-hueso: #ece7de;
+  --color-barro: #c9744a;
+
+  --font-sans: var(--font-jost);
+  --font-serif: var(--font-cormorant);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #ffffff;
+  color: var(--color-tinta);
+  font-family: var(--font-jost), system-ui, sans-serif;
+}
+
+/* Botones y textos de la marca */
+@utility btn-negro {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--color-tinta);
+  color: #fff;
+  padding: 0.9rem 1.75rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  transition: background 0.2s;
+  &:hover {
+    background: #2b2b2b;
+  }
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+@utility btn-oro {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--color-oro);
+  color: var(--color-tinta);
+  padding: 0.9rem 1.75rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  transition: background 0.2s;
+  &:hover {
+    background: var(--color-oro-claro);
+  }
+}
+
+@utility btn-linea {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid currentColor;
+  padding: 0.85rem 1.6rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  &:hover {
+    background: var(--color-tinta);
+    color: #fff;
+    border-color: var(--color-tinta);
+  }
+}
+
+@utility eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+
+@utility campo {
+  width: 100%;
+  border: 1px solid #d6d1c7;
+  background: #fff;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.15s;
+  &:focus {
+    border-color: var(--color-oro-oscuro);
+  }
+}
+
+.filete-oro {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-oro), transparent);
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.aparecer {
+  animation: aparecer 0.6s ease-out both;
 }

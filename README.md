@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mía María · miamaria.com.mx
 
-## Getting Started
+Catálogo interactivo con carrito. Al finalizar, el cliente envía su pedido por WhatsApp
+y la tienda recibe un aviso por correo. Panel privado para productos, categorías,
+pedidos (pre-órdenes) e inventario.
 
-First, run the development server:
+**Stack:** Next.js 16 · Neon Postgres · iron-session · Vercel Blob (fotos) · Resend (correo).
+
+## Desarrollo
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev:local          # http://localhost:3110 con base local de demostración (PGlite)
+npm run dev:local -- --reset   # borra la base local y vuelve a sembrar los datos demo
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Panel demo: `/admin` — `admin@miamaria.com.mx` / `MiaMaria2026` (solo base local, ver `db/seed/demo.sql`).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Cómo funciona
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Carrito:** se guarda en el navegador. Al finalizar se pide nombre, WhatsApp, correo
+  (opcional), entrega y dirección. El servidor recalcula precios, existencias y envío,
+  guarda la pre-orden (`MM-1001`, `MM-1002`…), avisa por correo y abre WhatsApp con el detalle.
+- **Entregas** (`src/lib/config.ts`): recoger en tienda gratis · CDMX $199 · todo México $399 ·
+  gratis en compras mayores a $2,000.
+- **Inventario:** al marcar un pedido como *Pagado* (o Enviado/Entregado) se descuentan sus
+  piezas una sola vez. Si se *Cancela* o regresa a *Pendiente*, las piezas vuelven al inventario.
+- **Importar Excel** (`/admin/importar`): columnas SKU, Nombre, Descripción, Categoría, Precio y,
+  opcional, Existencia. Actualiza por SKU y crea las categorías que falten. Hay plantilla descargable.
 
-## Learn More
+## Producción (Vercel)
 
-To learn more about Next.js, take a look at the following resources:
+1. Crear la base en Neon y el almacén de Blob en Vercel.
+2. Variables de entorno (ver `.env.example`): `DATABASE_URL`, `SESSION_SECRET` (32+ caracteres,
+   obligatoria), `NEXT_PUBLIC_WHATSAPP`, `NEXT_PUBLIC_SITE_URL`, `RESEND_API_KEY`, `PEDIDOS_EMAIL`,
+   `EMAIL_FROM`, `BLOB_READ_WRITE_TOKEN`.
+3. Con `DATABASE_URL` en `.env.local`:
+   ```bash
+   npm run db:migrar
+   npm run admin:crear -- correo@miamaria.com.mx "contraseña-segura" "Nombre"
+   ```
+4. En Resend, verificar el dominio `miamaria.com.mx` para poder enviar desde `pedidos@…`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Archivos clave
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Ruta | Qué es |
+| --- | --- |
+| `src/lib/config.ts` | Dirección, WhatsApp, costos de envío, estatus |
+| `src/actions/pedidos.ts` | Crear pre-orden y cambiar estatus (inventario) |
+| `src/actions/importar.ts` | Importación del Excel |
+| `db/migrations/` | Esquema de la base |
+| `scripts/preparar-imagenes.mjs` | Genera logo, portada y fotos a partir de `../_referencias` |

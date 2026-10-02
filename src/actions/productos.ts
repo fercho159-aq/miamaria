@@ -1,0 +1,150 @@
+'use server'
+
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
+import { z } from 'zod'
+import { getDb } from '@/lib/db'
+import { requireAdmin } from '@/lib/auth'
+import { guardarImagen } from '@/lib/storage'
+import { slugify } from '@/lib/format'
+
+export type FormState = { error?: string; ok?: string } | undefined
+
+const productoSchema = z.object({
+  sku: z.string().trim().min(1, 'El SKU es obligatorio').max(60).transform((s) => s.toUpperCase()),
+  nombre: z.string().trim().min(2, 'El nombre es obligatorio').max(160),
+  descripcion: z.string().trim().max(2000).default(''),
+  categoriaId: z.coerce.number().int().positive().nullable(),
+  precio: z.coerce.number({ message: 'Precio no válido' }).min(0, 'Precio no válido'),
+  stock: z.coerce.number({ message: 'Existencia no válida' }).int('La existencia debe ser un número entero'),
+  activo: z.boolean(),
+  destacado: z.boolean(),
+})
+
+function leer(form: FormData) {
+  return productoSchema.safeParse({
+    sku: form.get('sku'),
+    nombre: form.get('nombre'),
+    descripcion: form.get('descripcion') ?? '',
+    categoriaId: form.get('categoriaId') ? form.get('categoriaId') : null,
+    precio: form.get('precio'),
+    stock: form.get('stock'),
+    activo: form.get('activo') === 'on',
+    destacado: form.get('destacado') === 'on',
+  })
+}
+
+function revalidar() {
+  revalidatePath('/', 'layout')
+}
+
+export async function guardarProducto(_: FormState, form: FormData): Promise<FormState> {
+  await requireAdmin()
+  const parsed = leer(form)
+  if (!parsed.success) return { error: parsed.error.issues[0].message }
+  const d = parsed.data
+  const id = form.get('id') ? Number(form.get('id')) : null
+  const sql = getDb()
+
+  const [dup] = await sql`SELECT id FROM productos WHERE sku = ${d.sku} AND id IS DISTINCT FROM ${id}::int`
+  if (dup) return { error: `Ya existe otro producto con el SKU ${d.sku}` }
+
+  let imagenUrl: string | null | undefined = undefined
+  const foto = form.get('foto')
+  try {
+    if (foto instanceof File && foto.size > 0) imagenUrl = await guardarImagen(foto, d.sku)
+  } catch (e) {
+    return { error: (e as Error).message }
+  }
+  if (form.get('quitarFoto') === 'on') imagenUrl = null
+
+  let nuevoId = id
+  if (id) {
+    await sql`
+      UPDATE productos SET sku = ${d.sku}, nombre = ${d.nombre}, descripcion = ${d.descripcion},
+        categoria_id = ${d.categoriaId}, precio = ${d.precio}, stock = ${d.stock},
+        activo = ${d.activo}, destacado = ${d.destacado}, updated_at = NOW()
+      WHERE id = ${id}
+    `
+    if (imagenUrl !== undefined) await sql`UPDATE productos SET imagen_url = ${imagenUrl} WHERE id = ${id}`
+  } else {
+    const [row] = await sql`
+      INSERT INTO productos (sku, nombre, descripcion, categoria_id, precio, stock, activo, destacado, imagen_url)
+      VALUES (${d.sku}, ${d.nombre}, ${d.descripcion}, ${d.categoriaId}, ${d.precio}, ${d.stock},
+              ${d.activo}, ${d.destacado}, ${imagenUrl ?? null})
+      RETURNING id
+    `
+    nuevoId = row.id
+  }
+  revalidar()
+  if (!id) redirect(`/admin/productos/${nuevoId}?creado=1`)
+  return { ok: 'Cambios guardados' }
+}
+
+export async function eliminarProducto(id: number) {
+  await requireAdmin()
+  const sql = getDb()
+  // Si ya aparece en pedidos, se desactiva para conservar el historial.
+  const [usado] = await sql`SELECT 1 FROM pedido_items WHERE producto_id = ${id} LIMIT 1`
+  if (usado) await sql`UPDATE productos SET activo = FALSE, updated_at = NOW() WHERE id = ${id}`
+  else await sql`DELETE FROM productos WHERE id = ${id}`
+  revalidar()
+  redirect('/admin/productos')
+}
+
+export async function ajustarStockRapido(id: number, stock: number) {
+  await requireAdmin()
+  if (!Number.isInteger(stock)) return
+  const sql = getDb()
+  await sql`UPDATE productos SET stock = ${stock}, updated_at = NOW() WHERE id = ${id}`
+  revalidar()
+}
+
+// ---------- Categorías ----------
+
+export async function crearCategoria(_: FormState, form: FormData): Promise<FormState> {
+  await requireAdmin()
+  const nombre = String(form.get('nombre') ?? '').trim()
+  if (nombre.length < 2) return { error: 'Escribe el nombre de la categoría' }
+  const sql = getDb()
+  const slug = slugify(nombre)
+  const [existe] = await sql`SELECT 1 FROM categorias WHERE slug = ${slug} OR lower(nombre) = lower(${nombre})`
+  if (existe) return { error: 'Esa categoría ya existe' }
+  await sql`INSERT INTO categorias (nombre, slug, orden) VALUES (${nombre}, ${slug}, (SELECT COALESCE(MAX(orden), 0) + 1 FROM categorias))`
+  revalidar()
+  return { ok: `Categoría “${nombre}” creada` }
+}
+
+export async function renombrarCategoria(id: number, nombre: string) {
+  await requireAdmin()
+  nombre = nombre.trim()
+  if (nombre.length < 2) return { error: 'Nombre muy corto' }
+  const sql = getDb()
+  const slug = slugify(nombre)
+  const [existe] = await sql`SELECT 1 FROM categorias WHERE (slug = ${slug} OR lower(nombre) = lower(${nombre})) AND id <> ${id}`
+  if (existe) return { error: 'Esa categoría ya existe' }
+  await sql`UPDATE categorias SET nombre = ${nombre}, slug = ${slug} WHERE id = ${id}`
+  revalidar()
+  return { ok: true }
+}
+
+export async function moverCategoria(id: number, dir: -1 | 1) {
+  await requireAdmin()
+  const sql = getDb()
+  const cats = await sql`SELECT id FROM categorias ORDER BY orden, nombre`
+  const ids = cats.map((c) => c.id as number)
+  const i = ids.indexOf(id)
+  const j = i + dir
+  if (i < 0 || j < 0 || j >= ids.length) return
+  ;[ids[i], ids[j]] = [ids[j], ids[i]]
+  for (const [orden, cid] of ids.entries()) await sql`UPDATE categorias SET orden = ${orden + 1} WHERE id = ${cid}`
+  revalidar()
+}
+
+export async function eliminarCategoria(id: number) {
+  await requireAdmin()
+  const sql = getDb()
+  // Los productos se quedan sin categoría (no se borran).
+  await sql`DELETE FROM categorias WHERE id = ${id}`
+  revalidar()
+}
