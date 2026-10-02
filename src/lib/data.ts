@@ -7,6 +7,8 @@ export interface Categoria {
   slug: string
   orden: number
   productos?: number
+  /** Foto de un producto de la categoría (destacado primero), para menús y portadas. */
+  imagen?: string | null
 }
 
 export interface Producto {
@@ -20,6 +22,8 @@ export interface Producto {
   precio: number
   stock: number
   imagenUrl: string | null
+  /** Segunda foto (ej. la pieza puesta). */
+  imagen2Url: string | null
   activo: boolean
   destacado: boolean
 }
@@ -35,6 +39,7 @@ const toProducto = (r: Row): Producto => ({
   precio: Number(r.precio),
   stock: Number(r.stock),
   imagenUrl: r.imagen_url,
+  imagen2Url: r.imagen2_url ?? null,
   activo: r.activo,
   destacado: r.destacado,
 })
@@ -43,10 +48,20 @@ export async function getCategorias(): Promise<Categoria[]> {
   const sql = getDb()
   const rows = await sql`
     SELECT c.id, c.nombre, c.slug, c.orden,
-           (SELECT COUNT(*) FROM productos p WHERE p.categoria_id = c.id AND p.activo) AS productos
+           (SELECT COUNT(*) FROM productos p WHERE p.categoria_id = c.id AND p.activo) AS productos,
+           (SELECT p.imagen_url FROM productos p
+             WHERE p.categoria_id = c.id AND p.activo AND p.imagen_url IS NOT NULL
+             ORDER BY p.destacado DESC, p.created_at DESC LIMIT 1) AS imagen
     FROM categorias c ORDER BY c.orden, c.nombre
   `
-  return rows.map((r) => ({ id: r.id, nombre: r.nombre, slug: r.slug, orden: r.orden, productos: Number(r.productos) }))
+  return rows.map((r) => ({
+    id: r.id,
+    nombre: r.nombre,
+    slug: r.slug,
+    orden: r.orden,
+    productos: Number(r.productos),
+    imagen: r.imagen ?? null,
+  }))
 }
 
 /** Catálogo público: solo productos activos. */

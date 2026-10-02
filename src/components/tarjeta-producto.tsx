@@ -13,8 +13,19 @@ export function TarjetaProducto({ p }: { p: Producto }) {
           src={p.imagenUrl}
           alt={p.nombre}
           sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-          className="transition duration-700 group-hover:scale-[1.04]"
+          className="transition duration-[1600ms] ease-out group-hover:scale-[1.05]"
         />
+        {p.imagen2Url && (
+          // Segunda foto: aparece despacio al pasar el mouse
+          <div className="absolute inset-0 opacity-0 transition-opacity duration-[1200ms] ease-out group-hover:opacity-100">
+            <FotoProducto
+              src={p.imagen2Url}
+              alt={`${p.nombre}, puesta`}
+              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+              className="scale-[1.06] transition duration-[2000ms] ease-out group-hover:scale-100"
+            />
+          </div>
+        )}
         {agotado && (
           <span className="eyebrow absolute top-3 left-3 bg-white/90 px-2.5 py-1 text-[0.6rem] text-tinta">Agotado</span>
         )}

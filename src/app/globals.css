@@ -119,3 +119,84 @@ body {
 .aparecer {
   animation: aparecer 0.6s ease-out both;
 }
+
+/* ---------- Movimiento lento (carruseles y marquesinas) ---------- */
+@keyframes marquesina-x {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+@keyframes marquesina-y {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -50%, 0);
+  }
+}
+@keyframes ken-burns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.09);
+  }
+}
+@keyframes progreso {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.marquesina-x {
+  animation: marquesina-x var(--duracion, 60s) linear infinite;
+}
+.marquesina-y {
+  animation: marquesina-y var(--duracion, 70s) linear infinite;
+}
+.marquesina-y.reversa,
+.marquesina-x.reversa {
+  animation-direction: reverse;
+}
+.pausa-hover:hover .marquesina-x,
+.pausa-hover:hover .marquesina-y {
+  animation-play-state: paused;
+}
+.ken-burns {
+  animation: ken-burns 9s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+}
+.barra-progreso {
+  transform-origin: left;
+  animation: progreso var(--duracion, 7s) linear both;
+}
+
+/* Desvanece los bordes de las franjas en movimiento */
+.mascara-x {
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.mascara-y {
+  mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+.sin-barra {
+  scrollbar-width: none;
+}
+.sin-barra::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquesina-x,
+  .marquesina-y,
+  .ken-burns,
+  .barra-progreso,
+  .aparecer {
+    animation: none !important;
+  }
+}

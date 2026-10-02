@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ChevronLeft, Gift, MessageCircle, Store, Truck } from 'lucide-react'
 import { BotonAgregar } from '@/components/carrito/boton-agregar'
-import { FotoProducto } from '@/components/foto-producto'
+import { GaleriaProducto } from '@/components/galeria-producto'
 import { TarjetaProducto } from '@/components/tarjeta-producto'
 import { ENVIO_GRATIS_DESDE, sitio } from '@/lib/config'
 import { getProducto, getProductos } from '@/lib/data'
@@ -36,9 +36,7 @@ export default async function ProductoPage({ params }: PageProps<'/producto/[sku
       </nav>
 
       <div className="grid gap-10 md:grid-cols-2 lg:gap-16">
-        <div className="relative aspect-[4/5] overflow-hidden bg-tinta">
-          <FotoProducto src={p.imagenUrl} alt={p.nombre} sizes="(min-width: 768px) 50vw, 100vw" priority />
-        </div>
+        <GaleriaProducto nombre={p.nombre} fotos={[p.imagenUrl, p.imagen2Url].filter((f): f is string => !!f)} />
 
         <div className="md:py-6">
           {p.categoria && <p className="eyebrow text-oro-oscuro">{p.categoria}</p>}

@@ -32,7 +32,13 @@ async function logo() {
 async function hero() {
   await sharp(ref('WhatsApp Image 2026-10-02 at 9.31.30 AM.jpeg'))
     .extract({ left: 0, top: 0, width: 800, height: 643 })
-    .webp({ quality: 85 })
+    // La fuente es un recorte de 800 px de un banner por WhatsApp: se duplica con Lanczos,
+    // se limpia el ruido de compresión y se le da nitidez. Reemplazar por la foto original.
+    .resize({ width: 1600, kernel: 'lanczos3' })
+    .median(3)
+    .sharpen({ sigma: 1.1, m1: 0.6, m2: 2.2 })
+    .modulate({ saturation: 1.04 })
+    .webp({ quality: 92, smartSubsample: true })
     .toFile(out('hero-modelo.webp'))
 }
 
@@ -61,6 +67,25 @@ async function simbolo() {
     .toFile(path.join('src', 'app', 'icon.png'))
 }
 
-await Promise.all([logo(), hero(), producto(), bolsa()])
+// Fotos de producto horizontales (1600x1199) → recorte vertical 4:5 centrado en la pieza.
+async function vertical(origen, destino, left) {
+  await sharp(ref(origen)).extract({ left, top: 0, width: 959, height: 1199 }).webp({ quality: 85 }).toFile(out(destino))
+}
+
+// Fotos verticales 3:4 (1199x1600) → 4:5, recortando arriba y abajo.
+async function cuatroQuintos(origen, destino, top) {
+  await sharp(ref(origen)).extract({ left: 0, top, width: 1199, height: 1499 }).resize({ width: 1100 }).webp({ quality: 88 }).toFile(out(destino))
+}
+
+await Promise.all([
+  logo(),
+  cuatroQuintos('anillo-nudo.jpeg', 'anillo-nudo.webp', 70),
+  cuatroQuintos('anillo-nudo-mano.jpeg', 'anillo-nudo-mano.webp', 60),
+  hero(),
+  producto(),
+  bolsa(),
+  vertical('aretes-nacar.jpeg', 'aretes-nacar.webp', 320),
+  vertical('brazalete-turquesa.jpeg', 'brazalete-turquesa.webp', 350),
+])
 await simbolo()
 console.log('Imágenes listas en public/images')

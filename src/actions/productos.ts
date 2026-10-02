@@ -49,14 +49,21 @@ export async function guardarProducto(_: FormState, form: FormData): Promise<For
   const [dup] = await sql`SELECT id FROM productos WHERE sku = ${d.sku} AND id IS DISTINCT FROM ${id}::int`
   if (dup) return { error: `Ya existe otro producto con el SKU ${d.sku}` }
 
-  let imagenUrl: string | null | undefined = undefined
-  const foto = form.get('foto')
+  // undefined = no cambia, null = se quita, texto = foto nueva
+  const leerFoto = async (campo: string, quitar: string) => {
+    const foto = form.get(campo)
+    if (form.get(quitar) === 'on') return null
+    if (foto instanceof File && foto.size > 0) return guardarImagen(foto, d.sku)
+    return undefined
+  }
+  let imagenUrl: string | null | undefined
+  let imagen2Url: string | null | undefined
   try {
-    if (foto instanceof File && foto.size > 0) imagenUrl = await guardarImagen(foto, d.sku)
+    imagenUrl = await leerFoto('foto', 'quitarFoto')
+    imagen2Url = await leerFoto('foto2', 'quitarFoto2')
   } catch (e) {
     return { error: (e as Error).message }
   }
-  if (form.get('quitarFoto') === 'on') imagenUrl = null
 
   let nuevoId = id
   if (id) {
@@ -67,11 +74,12 @@ export async function guardarProducto(_: FormState, form: FormData): Promise<For
       WHERE id = ${id}
     `
     if (imagenUrl !== undefined) await sql`UPDATE productos SET imagen_url = ${imagenUrl} WHERE id = ${id}`
+    if (imagen2Url !== undefined) await sql`UPDATE productos SET imagen2_url = ${imagen2Url} WHERE id = ${id}`
   } else {
     const [row] = await sql`
-      INSERT INTO productos (sku, nombre, descripcion, categoria_id, precio, stock, activo, destacado, imagen_url)
+      INSERT INTO productos (sku, nombre, descripcion, categoria_id, precio, stock, activo, destacado, imagen_url, imagen2_url)
       VALUES (${d.sku}, ${d.nombre}, ${d.descripcion}, ${d.categoriaId}, ${d.precio}, ${d.stock},
-              ${d.activo}, ${d.destacado}, ${imagenUrl ?? null})
+              ${d.activo}, ${d.destacado}, ${imagenUrl ?? null}, ${imagen2Url ?? null})
       RETURNING id
     `
     nuevoId = row.id
