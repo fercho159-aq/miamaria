@@ -9,14 +9,18 @@ import { ENVIO_GRATIS_DESDE, sitio } from '@/lib/config'
 import { getProducto, getProductos } from '@/lib/data'
 import { precio } from '@/lib/format'
 import { urlWhatsApp } from '@/lib/whatsapp'
+import { JsonLd } from '@/components/json-ld'
+import { datosProducto, migas, urlColeccion, urlProducto } from '@/lib/seo'
 
 export async function generateMetadata({ params }: PageProps<'/producto/[sku]'>): Promise<Metadata> {
   const p = await getProducto(decodeURIComponent((await params).sku))
   if (!p) return { title: 'Producto no encontrado' }
+  const descripcion = `${p.descripcion || `${p.nombre} de Mía María, joyería de autor.`} ${precio(p.precio)} MXN. Recoge en Masaryk 998 o recibe en todo México.`
   return {
-    title: p.nombre,
-    description: p.descripcion || `${p.nombre} · ${precio(p.precio)}`,
-    openGraph: p.imagenUrl ? { images: [p.imagenUrl] } : undefined,
+    title: p.categoria ? `${p.nombre} · ${p.categoria}` : p.nombre,
+    description: descripcion.slice(0, 300),
+    alternates: { canonical: urlProducto(p.sku) },
+    openGraph: { title: p.nombre, description: descripcion.slice(0, 300), url: urlProducto(p.sku), images: [p.imagenUrl ?? '/images/og-miamaria.jpg'] },
   }
 }
 
@@ -29,8 +33,16 @@ export default async function ProductoPage({ params }: PageProps<'/producto/[sku
 
   return (
     <div className="mx-auto max-w-7xl px-4 pt-8 pb-24 sm:px-6">
+      <JsonLd data={datosProducto(p)} />
+      <JsonLd
+        data={migas([
+          { nombre: 'Catálogo', ruta: '/catalogo' },
+          ...(p.categoriaSlug ? [{ nombre: p.categoria!, ruta: urlColeccion(p.categoriaSlug) }] : []),
+          { nombre: p.nombre, ruta: urlProducto(p.sku) },
+        ])}
+      />
       <nav className="mb-8 text-xs text-neutral-500">
-        <Link href={p.categoriaSlug ? `/catalogo?categoria=${p.categoriaSlug}` : '/catalogo'} className="inline-flex items-center gap-1 hover:text-tinta">
+        <Link href={p.categoriaSlug ? urlColeccion(p.categoriaSlug) : '/catalogo'} className="inline-flex items-center gap-1 hover:text-tinta">
           <ChevronLeft size={14} /> {p.categoria ?? 'Catálogo'}
         </Link>
       </nav>

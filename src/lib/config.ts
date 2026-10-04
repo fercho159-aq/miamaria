@@ -4,14 +4,23 @@
 export const sitio = {
   nombre: 'Mía María',
   lema: 'Arte México',
-  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://miamaria.com.mx',
+  // Dominio principal (miamaria.com.mx redirige a www en Vercel)
+  url: (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.miamaria.com.mx').replace(/\/$/, ''),
+  descripcion:
+    'Joyería de autor en Polanco, CDMX. Collares, aretes, pulseras y anillos en baño de oro, nácar y piedras. Visítanos en Masaryk 998 o pide por WhatsApp con envío a todo México.',
   tienda: {
     direccion: 'Av. Presidente Masaryk 998, Polanco, CDMX',
     corta: 'Masaryk 998',
+    calle: 'Av. Presidente Masaryk 998',
+    colonia: 'Polanco',
+    alcaldia: 'Miguel Hidalgo',
+    ciudad: 'Ciudad de México',
     mapa: 'https://maps.google.com/?q=Presidente+Masaryk+998+Polanco+CDMX',
   },
   // Número que recibe los pedidos por WhatsApp: 52 + 10 dígitos, sin espacios.
   whatsapp: process.env.NEXT_PUBLIC_WHATSAPP || '5215500000000',
+  /** true cuando ya se configuró el número real (se publica en los datos para Google). */
+  whatsappReal: !!process.env.NEXT_PUBLIC_WHATSAPP,
   instagram: process.env.NEXT_PUBLIC_INSTAGRAM || '',
 }
 

@@ -204,3 +204,24 @@ export async function getResumen() {
     stockBajo: Number(r.stock_bajo),
   }
 }
+
+/** Páginas públicas para el sitemap: productos activos y colecciones con productos. */
+export async function getUrlsSitemap() {
+  const sql = getDb()
+  const productos = await sql`
+    SELECT sku, updated_at, imagen_url, imagen2_url FROM productos WHERE activo ORDER BY updated_at DESC
+  `
+  const colecciones = await sql`
+    SELECT c.slug, MAX(p.updated_at) AS updated_at
+    FROM categorias c JOIN productos p ON p.categoria_id = c.id AND p.activo
+    GROUP BY c.slug
+  `
+  return {
+    productos: productos.map((p) => ({
+      sku: p.sku as string,
+      actualizado: new Date(p.updated_at),
+      imagenes: [p.imagen_url, p.imagen2_url].filter(Boolean) as string[],
+    })),
+    colecciones: colecciones.map((c) => ({ slug: c.slug as string, actualizado: new Date(c.updated_at) })),
+  }
+}

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { Producto } from '@/lib/data'
 import { precio } from '@/lib/format'
+import { urlProducto } from '@/lib/seo'
 import { FotoProducto } from './foto-producto'
 import { BotonAgregar } from './carrito/boton-agregar'
 
@@ -8,7 +9,7 @@ export function TarjetaProducto({ p }: { p: Producto }) {
   const agotado = p.stock <= 0
   return (
     <article className="group flex flex-col">
-      <Link href={`/producto/${encodeURIComponent(p.sku)}`} className="relative block aspect-[4/5] overflow-hidden bg-tinta">
+      <Link href={urlProducto(p.sku)} className="relative block aspect-[4/5] overflow-hidden bg-tinta">
         <FotoProducto
           src={p.imagenUrl}
           alt={p.nombre}
@@ -36,7 +37,7 @@ export function TarjetaProducto({ p }: { p: Producto }) {
       <div className="flex flex-1 flex-col pt-4 text-center">
         {p.categoria && <p className="eyebrow text-[0.6rem] text-oro-oscuro">{p.categoria}</p>}
         <h3 className="mt-1 font-serif text-xl leading-tight">
-          <Link href={`/producto/${encodeURIComponent(p.sku)}`}>{p.nombre}</Link>
+          <Link href={urlProducto(p.sku)}>{p.nombre}</Link>
         </h3>
         <p className="mt-1 text-sm tracking-wide text-neutral-600">{precio(p.precio)}</p>
         <div className="mt-auto pt-3">

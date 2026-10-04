@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, ChevronDown, MapPin, Menu, MessageCircle, Search, ShoppingBag, X } from 'lucide-react'
 import { ENVIO_GRATIS_DESDE, sitio } from '@/lib/config'
 import { precio } from '@/lib/format'
+import { urlColeccion } from '@/lib/seo'
 import { useCarrito } from './carrito/carrito-context'
 
 export interface CategoriaMenu {
@@ -55,7 +56,7 @@ export function Encabezado({ categorias }: { categorias: CategoriaMenu[] }) {
   const tarjetas = conFoto.length
     ? conFoto.slice(0, 3)
     : [{ nombre: 'Nuevas piezas', slug: '', imagen: null, foto: FOTOS_CASA[0] }, { nombre: 'Lo más deseado', slug: '', imagen: null, foto: FOTOS_CASA[1] }, { nombre: 'Para regalar', slug: '', imagen: null, foto: FOTOS_CASA[4] }]
-  const hrefCat = (slug: string) => (slug ? `/catalogo?categoria=${slug}` : '/catalogo')
+  const hrefCat = (slug: string) => (slug ? urlColeccion(slug) : '/catalogo')
 
   return (
     <header className="sticky top-0 z-40" onMouseLeave={cerrarMega}>

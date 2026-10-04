@@ -1,13 +1,21 @@
+import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, MapPin, MessageCircle, Package, Store, Truck } from 'lucide-react'
 import { CarruselHorizontal } from '@/components/carruseles/carrusel-horizontal'
 import { GaleriaVertical, MarquesinaTexto, TiraImagenes, type ImagenGaleria } from '@/components/carruseles/marquesinas'
 import { CarruselPortada, type DiapositivaPortada } from '@/components/carruseles/portada'
+import { JsonLd } from '@/components/json-ld'
 import { TarjetaProducto } from '@/components/tarjeta-producto'
 import { ENVIO_GRATIS_DESDE, entregas, sitio } from '@/lib/config'
 import { getCategorias, getProductos } from '@/lib/data'
 import { precio } from '@/lib/format'
+import { datosSitio, datosTienda, urlColeccion } from '@/lib/seo'
+
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+  openGraph: { url: '/', type: 'website', locale: 'es_MX', siteName: 'Mía María · Arte México', images: [{ url: '/images/og-miamaria.jpg', width: 1200, height: 630 }] },
+}
 
 const portada: DiapositivaPortada[] = [
   {
@@ -82,6 +90,9 @@ export default async function Inicio() {
 
   return (
     <>
+      <JsonLd data={datosTienda()} />
+      <JsonLd data={datosSitio()} />
+      <h1 className="sr-only">Mía María · Joyería de autor en Polanco, Ciudad de México</h1>
       <CarruselPortada diapositivas={portada} />
 
       <MarquesinaTexto frases={['Arte México', 'Joyería de autor', `Ahora en ${sitio.tienda.corta}`, 'Hecho para brillar', 'Envíos a todo México']} />
@@ -114,7 +125,7 @@ export default async function Inicio() {
             </div>
             <div className={`grid gap-4 sm:gap-5 ${colecciones.length >= 4 ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2 lg:grid-cols-3'}`}>
               {colecciones.slice(0, 8).map((c, i) => (
-                <Link key={c.slug} href={`/catalogo?categoria=${c.slug}`} className="group relative block aspect-[3/4] overflow-hidden bg-carbon">
+                <Link key={c.slug} href={urlColeccion(c.slug)} className="group relative block aspect-[3/4] overflow-hidden bg-carbon">
                   <Image
                     src={c.imagen ?? fotosCasa[i % fotosCasa.length].src}
                     alt={c.nombre}

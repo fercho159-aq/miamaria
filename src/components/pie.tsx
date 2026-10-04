@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { entregas, sitio } from '@/lib/config'
 import { precio } from '@/lib/format'
+import { urlColeccion } from '@/lib/seo'
 
 export function Pie({ categorias }: { categorias: { nombre: string; slug: string }[] }) {
   return (
@@ -15,7 +16,7 @@ export function Pie({ categorias }: { categorias: { nombre: string; slug: string
           <ul className="space-y-2.5 text-sm">
             {categorias.map((c) => (
               <li key={c.slug}>
-                <Link href={`/catalogo?categoria=${c.slug}`} className="hover:text-oro">
+                <Link href={urlColeccion(c.slug)} className="hover:text-oro">
                   {c.nombre}
                 </Link>
               </li>

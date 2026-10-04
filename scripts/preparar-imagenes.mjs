@@ -77,6 +77,19 @@ async function cuatroQuintos(origen, destino, top) {
   await sharp(ref(origen)).extract({ left: 0, top, width: 1199, height: 1499 }).resize({ width: 1100 }).webp({ quality: 88 }).toFile(out(destino))
 }
 
+// Imagen para compartir en redes (1200x630): foto a la izquierda, logo sobre marfil.
+async function og() {
+  const foto = await sharp(out('hero-modelo.webp')).resize({ width: 600, height: 630, fit: 'cover', position: 'top' }).toBuffer()
+  const marca = await sharp(out('logo-dorado.png')).resize({ height: 330 }).toBuffer()
+  await sharp({ create: { width: 1200, height: 630, channels: 3, background: '#f7f5f1' } })
+    .composite([
+      { input: foto, left: 0, top: 0 },
+      { input: marca, left: 600 + Math.round((600 - 263) / 2), top: 150 },
+    ])
+    .jpeg({ quality: 86, mozjpeg: true })
+    .toFile(out('og-miamaria.jpg'))
+}
+
 await Promise.all([
   logo(),
   cuatroQuintos('anillo-nudo.jpeg', 'anillo-nudo.webp', 70),
@@ -88,4 +101,5 @@ await Promise.all([
   vertical('brazalete-turquesa.jpeg', 'brazalete-turquesa.webp', 350),
 ])
 await simbolo()
+await og()
 console.log('Imágenes listas en public/images')
