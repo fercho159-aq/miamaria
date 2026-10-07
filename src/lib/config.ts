@@ -7,7 +7,7 @@ export const sitio = {
   // Dominio principal (miamaria.com.mx redirige a www en Vercel)
   url: (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.miamaria.com.mx').replace(/\/$/, ''),
   descripcion:
-    'Joyería de autor en Polanco, CDMX. Collares, aretes, pulseras y anillos en baño de oro, nácar y piedras. Visítanos en Masaryk 998 o pide por WhatsApp con envío a todo México.',
+    'Joyería de autor en Polanco, CDMX. Collares, aretes, pulseras y anillos en plata, acero y chapa de oro. Visítanos en Masaryk 998 o pide por WhatsApp con envío a todo México.',
   tienda: {
     direccion: 'Av. Presidente Masaryk 998, Polanco, CDMX',
     corta: 'Masaryk 998',

@@ -8,7 +8,7 @@ export async function generateMetadata({ searchParams }: PageProps<'/catalogo'>)
   return {
     title: 'Catálogo de joyería',
     description:
-      'Collares, aretes, pulseras y anillos Mía María. Joyería de autor en baño de oro. Recoge en Masaryk 998, Polanco, o recibe en todo México.',
+      'Collares, aretes, pulseras, anillos y ear cuffs Mía María. Joyería de autor en plata, acero y chapa de oro. Recoge en Masaryk 998, Polanco, o recibe en todo México.',
     alternates: { canonical: '/catalogo' },
     // Los resultados de búsqueda no se indexan
     robots: q ? { index: false, follow: true } : undefined,
