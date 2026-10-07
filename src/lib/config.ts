@@ -50,5 +50,7 @@ export const estatusPedido = {
 
 export type EstatusPedido = keyof typeof estatusPedido
 
+export const formasPago = ['Transferencia', 'Depósito', 'Efectivo', 'Tarjeta en tienda', 'Liga de pago', 'Otro'] as const
+
 /** Estatus en los que el pedido ya descontó inventario. */
 export const estatusConStock: EstatusPedido[] = ['pagado', 'enviado', 'entregado']

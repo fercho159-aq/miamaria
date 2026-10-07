@@ -31,5 +31,40 @@ export function mensajePedido(p: PedidoWhatsApp) {
   return lineas.join('\n')
 }
 
+/** Mensaje de la tienda al cliente según el estatus del pedido (botón del panel). */
+export function mensajeEstatus(p: {
+  folio: string
+  clienteNombre: string
+  estatus: string
+  entrega: string
+  total: number
+  paqueteria?: string | null
+  guiaEnvio?: string | null
+}) {
+  const hola = `Hola ${p.clienteNombre.trim().split(/\s+/)[0]}, te escribimos de Mía María`
+  const enTienda = p.entrega === 'tienda'
+  switch (p.estatus) {
+    case 'pendiente':
+      return `${hola} sobre tu pedido *${p.folio}* por ${precio(p.total)}. ¿Te compartimos los datos para el pago?`
+    case 'pagado':
+      return `${hola}. Confirmamos el pago de tu pedido *${p.folio}*, ¡gracias! ${
+        enTienda
+          ? `Te avisamos en cuanto esté listo para recoger en ${sitio.tienda.corta}.`
+          : 'Lo estamos preparando y te compartimos la guía en cuanto salga.'
+      }`
+    case 'enviado': {
+      if (enTienda) return `${hola}. Tu pedido *${p.folio}* ya está listo para recoger en ${sitio.tienda.direccion}.`
+      const guia = [p.paqueteria, p.guiaEnvio && `guía ${p.guiaEnvio}`].filter(Boolean).join(', ')
+      return `${hola}. Tu pedido *${p.folio}* ya va en camino${guia ? ` (${guia})` : ''}.`
+    }
+    case 'entregado':
+      return `${hola}. Esperamos que disfrutes tu pedido *${p.folio}*. ¡Gracias por elegir Mía María!`
+    case 'cancelado':
+      return `${hola}. Tu pedido *${p.folio}* fue cancelado. Si quieres retomarlo, escríbenos y con gusto te ayudamos.`
+    default:
+      return `${hola} sobre tu pedido ${p.folio}.`
+  }
+}
+
 export const urlWhatsApp = (texto: string, numero = sitio.whatsapp) =>
   `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`

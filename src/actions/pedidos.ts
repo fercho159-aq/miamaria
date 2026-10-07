@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { getDb } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
-import { costoEnvio, estatusConStock, estatusPedido, type EstatusPedido } from '@/lib/config'
+import { costoEnvio, estatusConStock, estatusPedido, formasPago, type EstatusPedido } from '@/lib/config'
 import { avisarNuevoPedido } from '@/lib/email'
 import { mensajePedido } from '@/lib/whatsapp'
 
@@ -110,14 +110,26 @@ export async function crearPedido(input: PedidoInput): Promise<CrearPedidoResult
   return { ok: true, folio, mensaje: mensajePedido(resumen) }
 }
 
+/** Anota en el historial del pedido qué cambió y quién lo hizo. */
+async function registrarEvento(pedidoId: number, admin: { id: string; nombre: string }, descripcion: string) {
+  const sql = getDb()
+  await sql`
+    INSERT INTO pedido_eventos (pedido_id, admin_id, admin_nombre, descripcion)
+    VALUES (${pedidoId}, ${admin.id}, ${admin.nombre}, ${descripcion})
+  `
+}
+
 /**
  * Cambia el estatus de un pedido. Al pasar a pagado/enviado/entregado descuenta el
  * inventario (una sola vez); al cancelar un pedido que ya lo había descontado, lo regresa.
  */
 export async function cambiarEstatus(pedidoId: number, estatus: EstatusPedido) {
-  await requireAdmin()
+  const admin = await requireAdmin()
   if (!(estatus in estatusPedido)) return { ok: false, error: 'Estatus no válido' }
   const sql = getDb()
+  const [previo] = await sql`SELECT estatus FROM pedidos WHERE id = ${pedidoId}`
+  if (!previo) return { ok: false, error: 'El pedido no existe' }
+  if (previo.estatus === estatus) return { ok: true }
   const descuenta = estatusConStock.includes(estatus)
 
   if (descuenta) {
@@ -142,6 +154,8 @@ export async function cambiarEstatus(pedidoId: number, estatus: EstatusPedido) {
     `
   }
   await sql`UPDATE pedidos SET estatus = ${estatus}, updated_at = NOW() WHERE id = ${pedidoId}`
+  const etiqueta = (e: string) => estatusPedido[e as EstatusPedido]?.label ?? e
+  await registrarEvento(pedidoId, admin, `Estatus: ${etiqueta(previo.estatus)} → ${etiqueta(estatus)}`)
 
   revalidatePath('/admin', 'layout')
   revalidatePath('/', 'layout')
@@ -149,9 +163,42 @@ export async function cambiarEstatus(pedidoId: number, estatus: EstatusPedido) {
 }
 
 export async function guardarNotaInterna(pedidoId: number, nota: string) {
-  await requireAdmin()
+  const admin = await requireAdmin()
   const sql = getDb()
-  await sql`UPDATE pedidos SET nota_interna = ${nota.trim().slice(0, 1000) || null}, updated_at = NOW() WHERE id = ${pedidoId}`
+  const filas = await sql`
+    UPDATE pedidos SET nota_interna = ${nota.trim().slice(0, 1000) || null}, updated_at = NOW() WHERE id = ${pedidoId} RETURNING id
+  `
+  if (filas.length) await registrarEvento(pedidoId, admin, 'Actualizó la nota interna')
+  revalidatePath(`/admin/pedidos/${pedidoId}`)
+  return { ok: true }
+}
+
+/** Guarda forma de pago, paquetería y guía, y anota en el historial lo que cambió. */
+export async function guardarPagoEnvio(pedidoId: number, datos: { formaPago: string; paqueteria: string; guiaEnvio: string }) {
+  const admin = await requireAdmin()
+  const formaPago = (formasPago as readonly string[]).includes(datos.formaPago) ? datos.formaPago : null
+  const paqueteria = String(datos.paqueteria ?? '').trim().slice(0, 80) || null
+  const guiaEnvio = String(datos.guiaEnvio ?? '').trim().slice(0, 80) || null
+  const sql = getDb()
+  const [previo] = await sql`SELECT forma_pago, paqueteria, guia_envio FROM pedidos WHERE id = ${pedidoId}`
+  if (!previo) return { ok: false, error: 'El pedido no existe' }
+
+  const cambios = (
+    [
+      ['Forma de pago', previo.forma_pago, formaPago],
+      ['Paquetería', previo.paqueteria, paqueteria],
+      ['Guía', previo.guia_envio, guiaEnvio],
+    ] as [string, string | null, string | null][]
+  )
+    .filter(([, antes, ahora]) => (antes ?? null) !== ahora)
+    .map(([campo, , ahora]) => `${campo}: ${ahora ?? 'sin dato'}`)
+  if (!cambios.length) return { ok: true }
+
+  await sql`
+    UPDATE pedidos SET forma_pago = ${formaPago}, paqueteria = ${paqueteria}, guia_envio = ${guiaEnvio}, updated_at = NOW()
+    WHERE id = ${pedidoId}
+  `
+  await registrarEvento(pedidoId, admin, cambios.join(' · '))
   revalidatePath(`/admin/pedidos/${pedidoId}`)
   return { ok: true }
 }

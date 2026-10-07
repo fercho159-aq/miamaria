@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ChevronLeft, Gift, MessageCircle, Store, Truck } from 'lucide-react'
 import { BotonAgregar } from '@/components/carrito/boton-agregar'
+import { EnlaceConsulta } from '@/components/enlace-consulta'
 import { GaleriaProducto } from '@/components/galeria-producto'
 import { TarjetaProducto } from '@/components/tarjeta-producto'
 import { ENVIO_GRATIS_DESDE, sitio } from '@/lib/config'
@@ -62,16 +63,15 @@ export default async function ProductoPage({ params }: PageProps<'/producto/[sku
             {p.precio == null ? (
               <div className="space-y-3">
                 {p.stock <= 0 && <p className="eyebrow text-neutral-500">Agotado por ahora</p>}
-                <a
+                <EnlaceConsulta
+                  sku={p.sku}
                   href={urlWhatsApp(
                     `Hola Mía María, me interesa ${p.nombre} (${p.sku}). ¿Me compartes precio${p.stock <= 0 ? ' y cuándo vuelve a estar disponible' : ' y disponibilidad'}?`,
                   )}
-                  target="_blank"
-                  rel="noopener"
                   className="btn-negro w-full"
                 >
                   <MessageCircle size={15} strokeWidth={1.5} /> Consultar precio por WhatsApp
-                </a>
+                </EnlaceConsulta>
                 <p className="text-xs text-neutral-500">Te respondemos con precio, fotos de la pieza y opciones de entrega.</p>
               </div>
             ) : (
@@ -79,14 +79,13 @@ export default async function ProductoPage({ params }: PageProps<'/producto/[sku
             )}
           </div>
           {p.precio != null && (
-            <a
+            <EnlaceConsulta
+              sku={p.sku}
               href={urlWhatsApp(`Hola Mía María, me interesa la pieza ${p.nombre} (${p.sku}).`)}
-              target="_blank"
-              rel="noopener"
               className="eyebrow mt-4 inline-flex items-center gap-2 text-neutral-600 hover:text-tinta"
             >
               <MessageCircle size={15} /> Preguntar por WhatsApp
-            </a>
+            </EnlaceConsulta>
           )}
 
           <ul className="mt-10 space-y-4 border-t border-hueso pt-8 text-sm text-neutral-600">

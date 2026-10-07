@@ -6,7 +6,8 @@ import { entregas, type MetodoEntrega } from '@/lib/config'
 import { getPedido } from '@/lib/data'
 import { fechaHora, precio } from '@/lib/format'
 import { EtiquetaEstatus } from '../tabla-pedidos'
-import { ControlEstatus, NotaInterna } from './controles'
+import { mensajeEstatus } from '@/lib/whatsapp'
+import { ControlEstatus, NotaInterna, PagoEnvio } from './controles'
 
 export default async function PedidoPage({ params }: PageProps<'/admin/pedidos/[id]'>) {
   const id = Number((await params).id)
@@ -14,7 +15,8 @@ export default async function PedidoPage({ params }: PageProps<'/admin/pedidos/[
   if (!p) notFound()
 
   const tel = p.clienteTel.replace(/\D/g, '').slice(-10)
-  const saludo = encodeURIComponent(`Hola ${p.clienteNombre.split(' ')[0]}, te escribimos de Mía María sobre tu pedido ${p.folio}.`)
+  // El mensaje cambia con el estatus: cobro, confirmación de pago, guía, etc.
+  const mensaje = mensajeEstatus(p)
 
   return (
     <div className="max-w-5xl space-y-6">
@@ -71,6 +73,24 @@ export default async function PedidoPage({ params }: PageProps<'/admin/pedidos/[
             <h2 className="mb-3 text-sm font-medium">Nota interna</h2>
             <NotaInterna pedidoId={p.id} inicial={p.notaInterna ?? ''} />
           </section>
+
+          <section className="bg-white">
+            <h2 className="border-b border-neutral-100 px-5 py-3 text-sm font-medium">Historial</h2>
+            <ul className="divide-y divide-neutral-100 text-sm">
+              {p.eventos.map((e) => (
+                <li key={e.id} className="px-5 py-3">
+                  <p>{e.descripcion}</p>
+                  <p className="text-xs text-neutral-400">
+                    {e.admin} · {fechaHora(e.createdAt)}
+                  </p>
+                </li>
+              ))}
+              <li className="px-5 py-3">
+                <p>Pedido recibido desde la tienda</p>
+                <p className="text-xs text-neutral-400">{fechaHora(p.createdAt)}</p>
+              </li>
+            </ul>
+          </section>
         </div>
 
         <div className="space-y-6">
@@ -89,9 +109,22 @@ export default async function PedidoPage({ params }: PageProps<'/admin/pedidos/[
             <p>{p.clienteNombre}</p>
             <p>{p.clienteTel}</p>
             {p.clienteEmail && <p className="break-all">{p.clienteEmail}</p>}
-            <a href={`https://wa.me/52${tel}?text=${saludo}`} target="_blank" rel="noopener" className="btn-negro mt-3 w-full !py-2.5">
+            <a href={`https://wa.me/52${tel}?text=${encodeURIComponent(mensaje)}`} target="_blank" rel="noopener" className="btn-negro mt-3 w-full !py-2.5">
               <MessageCircle size={15} /> Escribir por WhatsApp
             </a>
+            <p className="pt-1 text-xs leading-relaxed text-neutral-500">
+              Mensaje sugerido: “{mensaje.replaceAll('*', '')}” Lo puedes editar antes de enviarlo.
+            </p>
+          </section>
+
+          <section className="bg-white p-5">
+            <h2 className="mb-3 text-sm font-medium">{p.entrega === 'tienda' ? 'Pago' : 'Pago y envío'}</h2>
+            <PagoEnvio
+              key={`${p.formaPago}|${p.paqueteria}|${p.guiaEnvio}`}
+              pedidoId={p.id}
+              conEnvio={p.entrega !== 'tienda'}
+              inicial={{ formaPago: p.formaPago ?? '', paqueteria: p.paqueteria ?? '', guiaEnvio: p.guiaEnvio ?? '' }}
+            />
           </section>
 
           <section className="space-y-2 bg-white p-5 text-sm">

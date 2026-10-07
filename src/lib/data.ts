@@ -126,13 +126,20 @@ export interface PedidoResumen {
   piezas: number
 }
 
-export async function getPedidos(estatus?: string): Promise<PedidoResumen[]> {
+/** `q` busca por folio, nombre o teléfono del cliente. */
+export async function getPedidos(estatus?: string, q?: string): Promise<PedidoResumen[]> {
   const sql = getDb()
+  const like = q?.trim() ? `%${q.trim()}%` : null
+  // Teléfono: se compara solo con dígitos, para encontrar "55 1234 5678" o "+52 55…".
+  const digitos = q?.replace(/\D/g, '') ?? ''
+  const tel = digitos.length >= 4 ? `%${digitos}%` : null
   const rows = await sql`
     SELECT p.id, p.folio, p.cliente_nombre, p.cliente_tel, p.entrega, p.total, p.estatus, p.created_at,
            (SELECT COALESCE(SUM(cantidad), 0) FROM pedido_items i WHERE i.pedido_id = p.id) AS piezas
     FROM pedidos p
     WHERE (${estatus ?? null}::text IS NULL OR p.estatus = ${estatus ?? null})
+      AND (${like}::text IS NULL OR p.folio ILIKE ${like} OR p.cliente_nombre ILIKE ${like}
+           OR (${tel}::text IS NOT NULL AND regexp_replace(p.cliente_tel, '[^0-9]', '', 'g') LIKE ${tel}))
     ORDER BY p.created_at DESC, p.id DESC
     LIMIT 300
   `
@@ -158,6 +165,10 @@ export async function getPedido(id: number) {
     FROM pedido_items i LEFT JOIN productos pr ON pr.id = i.producto_id
     WHERE i.pedido_id = ${id} ORDER BY i.id
   `
+  const eventos = await sql`
+    SELECT id, admin_nombre, descripcion, created_at FROM pedido_eventos
+    WHERE pedido_id = ${id} ORDER BY created_at DESC, id DESC
+  `
   return {
     id: p.id as number,
     folio: p.folio as string,
@@ -168,6 +179,9 @@ export async function getPedido(id: number) {
     direccion: p.direccion as string | null,
     notas: p.notas as string | null,
     notaInterna: p.nota_interna as string | null,
+    formaPago: p.forma_pago as string | null,
+    paqueteria: p.paqueteria as string | null,
+    guiaEnvio: p.guia_envio as string | null,
     subtotal: Number(p.subtotal),
     envio: Number(p.envio),
     total: Number(p.total),
@@ -182,7 +196,55 @@ export async function getPedido(id: number) {
       stockActual: i.stock_actual == null ? null : Number(i.stock_actual),
       imagenUrl: i.imagen_url as string | null,
     })),
+    eventos: eventos.map((e) => ({
+      id: e.id as number,
+      admin: e.admin_nombre as string,
+      descripcion: e.descripcion as string,
+      createdAt: String(e.created_at),
+    })),
   }
+}
+
+/** Consultas por WhatsApp desde la tienda: resumen por producto y las más recientes. */
+export async function getConsultas() {
+  const sql = getDb()
+  const porProducto = await sql`
+    SELECT c.sku, MAX(c.nombre) AS nombre, MAX(c.producto_id) AS producto_id,
+           COUNT(*) AS total,
+           COUNT(*) FILTER (WHERE c.created_at >= NOW() - INTERVAL '7 days') AS semana,
+           MAX(c.created_at) AS ultima,
+           (SELECT p.precio IS NULL FROM productos p WHERE p.id = MAX(c.producto_id)) AS sin_precio
+    FROM consultas c
+    WHERE c.created_at >= NOW() - INTERVAL '90 days'
+    GROUP BY c.sku ORDER BY total DESC, ultima DESC LIMIT 100
+  `
+  const recientes = await sql`SELECT id, sku, nombre, created_at FROM consultas ORDER BY created_at DESC, id DESC LIMIT 30`
+  return {
+    porProducto: porProducto.map((r) => ({
+      sku: r.sku as string,
+      nombre: r.nombre as string,
+      productoId: r.producto_id as number | null,
+      total: Number(r.total),
+      semana: Number(r.semana),
+      ultima: String(r.ultima),
+      sinPrecio: r.sin_precio === true,
+    })),
+    recientes: recientes.map((r) => ({ id: r.id as number, sku: r.sku as string, nombre: r.nombre as string, createdAt: String(r.created_at) })),
+  }
+}
+
+export interface AdminFila {
+  id: string
+  email: string
+  nombre: string
+  activo: boolean
+  createdAt: string
+}
+
+export async function getAdmins(): Promise<AdminFila[]> {
+  const sql = getDb()
+  const rows = await sql`SELECT id, email, nombre, activo, created_at FROM admins ORDER BY created_at, email`
+  return rows.map((r) => ({ id: r.id, email: r.email, nombre: r.nombre, activo: r.activo, createdAt: String(r.created_at) }))
 }
 
 export async function getResumen() {

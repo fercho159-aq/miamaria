@@ -3,15 +3,17 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ExternalLink, FileSpreadsheet, Gem, LayoutDashboard, LogOut, ShoppingBag, Tags } from 'lucide-react'
+import { ExternalLink, FileSpreadsheet, Gem, LayoutDashboard, LogOut, MessageCircle, ShoppingBag, Tags, Users } from 'lucide-react'
 import { salir } from '@/actions/auth'
 
 const enlaces = [
   { href: '/admin', label: 'Inicio', icon: LayoutDashboard, exacto: true },
   { href: '/admin/pedidos', label: 'Pedidos', icon: ShoppingBag },
+  { href: '/admin/consultas', label: 'Consultas', icon: MessageCircle },
   { href: '/admin/productos', label: 'Productos', icon: Gem },
   { href: '/admin/categorias', label: 'Categorías', icon: Tags },
   { href: '/admin/importar', label: 'Importar Excel', icon: FileSpreadsheet },
+  { href: '/admin/accesos', label: 'Accesos', icon: Users },
 ]
 
 export function NavPanel({ nombre, pendientes }: { nombre: string; pendientes: number }) {

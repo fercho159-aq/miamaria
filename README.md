@@ -25,6 +25,12 @@ Panel demo: `/admin` — `admin@miamaria.com.mx` / `MiaMaria2026` (solo base loc
   gratis en compras mayores a $2,000.
 - **Inventario:** al marcar un pedido como *Pagado* (o Enviado/Entregado) se descuentan sus
   piezas una sola vez. Si se *Cancela* o regresa a *Pendiente*, las piezas vuelven al inventario.
+- **Pedidos:** búsqueda por folio, nombre o teléfono. Cada pedido guarda forma de pago, paquetería
+  y guía, un historial de quién cambió qué, y el botón de WhatsApp propone un mensaje según el estatus.
+- **Consultas** (`/admin/consultas`): cada clic en "Consultar / Preguntar por WhatsApp" de un producto
+  queda registrado, para ver qué piezas interesan más.
+- **Accesos** (`/admin/accesos`): cambiar la contraseña propia, dar acceso a otra persona y
+  desactivar accesos (un acceso desactivado pierde la sesión de inmediato).
 - **Importar Excel** (`/admin/importar`): columnas SKU, Nombre, Descripción, Categoría, Precio y,
   opcional, Existencia. Actualiza por SKU y crea las categorías que falten. Hay plantilla descargable.
 

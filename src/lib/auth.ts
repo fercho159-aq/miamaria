@@ -10,16 +10,21 @@ export async function getSession() {
   return getIronSession<SessionData>(await cookies(), sessionOptions())
 }
 
+/** Administrador de la sesión, solo si sigue activo en la base. */
 export async function getAdmin() {
   const s = await getSession()
   if (!s.isLoggedIn || !s.adminId) return null
-  return { id: s.adminId, email: s.email!, nombre: s.nombre! }
+  const sql = getDb()
+  const [a] = await sql`SELECT id, email, nombre FROM admins WHERE id = ${s.adminId} AND activo LIMIT 1`
+  if (!a) return null
+  return { id: a.id as string, email: a.email as string, nombre: a.nombre as string }
 }
 
 /** Para páginas y server actions del panel: exige sesión iniciada. */
 export async function requireAdmin() {
   const admin = await getAdmin()
-  if (!admin) redirect('/admin/login')
+  // /admin/salir borra la cookie: una sesión de un acceso desactivado no puede quedarse en un ciclo con el login.
+  if (!admin) redirect('/admin/salir')
   return admin
 }
 
