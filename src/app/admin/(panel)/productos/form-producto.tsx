@@ -48,8 +48,8 @@ export function FormProducto({ producto, categorias, creado }: { producto?: Prod
             </select>
           </label>
           <label>
-            <span className="mb-1.5 block text-sm">Precio (MXN) *</span>
-            <input name="precio" required type="number" min={0} step="0.01" defaultValue={producto?.precio} className="campo" />
+            <span className="mb-1.5 block text-sm">Precio (MXN)</span>
+            <input name="precio" type="number" min={0} step="0.01" defaultValue={producto?.precio ?? ''} placeholder="Vacío = a consultar" className="campo" />
           </label>
           <label>
             <span className="mb-1.5 block text-sm">Existencia *</span>

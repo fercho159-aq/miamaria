@@ -2,6 +2,9 @@ const mxn = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN',
 
 export const precio = (n: number | string) => mxn.format(Number(n))
 
+/** Precio de catálogo: los productos sin precio se muestran "a consultar". */
+export const precioCatalogo = (n: number | null) => (n == null ? 'Precio a consultar' : precio(n))
+
 const fecha = new Intl.DateTimeFormat('es-MX', {
   dateStyle: 'medium',
   timeStyle: 'short',

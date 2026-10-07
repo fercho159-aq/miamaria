@@ -52,7 +52,7 @@ export async function crearPedido(input: PedidoInput): Promise<CrearPedidoResult
   const skus = [...cantidades.keys()]
 
   const productos = await sql`
-    SELECT id, sku, nombre, precio, stock FROM productos WHERE activo AND sku = ANY(${skus})
+    SELECT id, sku, nombre, precio, stock FROM productos WHERE activo AND precio IS NOT NULL AND sku = ANY(${skus})
   `
   const porSku = new Map(productos.map((p) => [p.sku as string, p]))
 

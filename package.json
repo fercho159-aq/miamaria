@@ -10,7 +10,8 @@
     "dev:local": "node scripts/dev-local.mjs",
     "db:migrar": "node scripts/migrar.mjs",
     "admin:crear": "node scripts/crear-admin.mjs",
-    "imagenes": "node scripts/preparar-imagenes.mjs"
+    "imagenes": "node scripts/preparar-imagenes.mjs",
+    "inventario:cargar": "node scripts/cargar-inventario.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",

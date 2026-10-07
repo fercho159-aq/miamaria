@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import type { Producto } from '@/lib/data'
-import { precio } from '@/lib/format'
+import { precioCatalogo } from '@/lib/format'
 import { urlProducto } from '@/lib/seo'
+import { urlWhatsApp } from '@/lib/whatsapp'
 import { FotoProducto } from './foto-producto'
 import { BotonAgregar } from './carrito/boton-agregar'
 
@@ -39,12 +40,25 @@ export function TarjetaProducto({ p }: { p: Producto }) {
         <h3 className="mt-1 font-serif text-xl leading-tight">
           <Link href={urlProducto(p.sku)}>{p.nombre}</Link>
         </h3>
-        <p className="mt-1 text-sm tracking-wide text-neutral-600">{precio(p.precio)}</p>
+        <p className={`mt-1 text-sm tracking-wide ${p.precio == null ? 'text-oro-oscuro italic' : 'text-neutral-600'}`}>
+          {precioCatalogo(p.precio)}
+        </p>
         <div className="mt-auto pt-3">
-          <BotonAgregar
-            producto={{ sku: p.sku, nombre: p.nombre, precio: p.precio, imagenUrl: p.imagenUrl, stock: p.stock }}
-            variante="compacto"
-          />
+          {p.precio == null ? (
+            <a
+              href={urlWhatsApp(`Hola Mía María, me interesa ${p.nombre} (${p.sku}). ¿Me compartes precio y disponibilidad?`)}
+              target="_blank"
+              rel="noopener"
+              className="eyebrow block w-full border border-tinta/80 py-2.5 text-[0.62rem] transition duration-500 hover:bg-tinta hover:text-white"
+            >
+              Consultar
+            </a>
+          ) : (
+            <BotonAgregar
+              producto={{ sku: p.sku, nombre: p.nombre, precio: p.precio, imagenUrl: p.imagenUrl, stock: p.stock }}
+              variante="compacto"
+            />
+          )}
         </div>
       </div>
     </article>

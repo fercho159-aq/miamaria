@@ -15,7 +15,8 @@ const productoSchema = z.object({
   nombre: z.string().trim().min(2, 'El nombre es obligatorio').max(160),
   descripcion: z.string().trim().max(2000).default(''),
   categoriaId: z.coerce.number().int().positive().nullable(),
-  precio: z.coerce.number({ message: 'Precio no válido' }).min(0, 'Precio no válido'),
+  // vacío = precio a consultar
+  precio: z.coerce.number({ message: 'Precio no válido' }).min(0, 'Precio no válido').nullable(),
   stock: z.coerce.number({ message: 'Existencia no válida' }).int('La existencia debe ser un número entero'),
   activo: z.boolean(),
   destacado: z.boolean(),
@@ -27,7 +28,7 @@ function leer(form: FormData) {
     nombre: form.get('nombre'),
     descripcion: form.get('descripcion') ?? '',
     categoriaId: form.get('categoriaId') ? form.get('categoriaId') : null,
-    precio: form.get('precio'),
+    precio: form.get('precio') ? form.get('precio') : null,
     stock: form.get('stock'),
     activo: form.get('activo') === 'on',
     destacado: form.get('destacado') === 'on',

@@ -7,7 +7,7 @@ import { GaleriaProducto } from '@/components/galeria-producto'
 import { TarjetaProducto } from '@/components/tarjeta-producto'
 import { ENVIO_GRATIS_DESDE, sitio } from '@/lib/config'
 import { getProducto, getProductos } from '@/lib/data'
-import { precio } from '@/lib/format'
+import { precio, precioCatalogo } from '@/lib/format'
 import { urlWhatsApp } from '@/lib/whatsapp'
 import { JsonLd } from '@/components/json-ld'
 import { datosProducto, migas, urlColeccion, urlProducto } from '@/lib/seo'
@@ -15,7 +15,7 @@ import { datosProducto, migas, urlColeccion, urlProducto } from '@/lib/seo'
 export async function generateMetadata({ params }: PageProps<'/producto/[sku]'>): Promise<Metadata> {
   const p = await getProducto(decodeURIComponent((await params).sku))
   if (!p) return { title: 'Producto no encontrado' }
-  const descripcion = `${p.descripcion || `${p.nombre} de Mía María, joyería de autor.`} ${precio(p.precio)} MXN. Recoge en Masaryk 998 o recibe en todo México.`
+  const descripcion = `${p.descripcion || `${p.nombre} de Mía María, joyería de autor.`} ${p.precio == null ? 'Precio a consultar por WhatsApp.' : `${precio(p.precio)} MXN.`} Recoge en Masaryk 998 o recibe en todo México.`
   return {
     title: p.categoria ? `${p.nombre} · ${p.categoria}` : p.nombre,
     description: descripcion.slice(0, 300),
@@ -53,22 +53,41 @@ export default async function ProductoPage({ params }: PageProps<'/producto/[sku
         <div className="md:py-6">
           {p.categoria && <p className="eyebrow text-oro-oscuro">{p.categoria}</p>}
           <h1 className="mt-3 font-serif text-4xl leading-tight sm:text-5xl">{p.nombre}</h1>
-          <p className="mt-4 text-2xl tracking-wide">{precio(p.precio)}</p>
+          <p className={`mt-4 tracking-wide ${p.precio == null ? 'font-serif text-2xl text-oro-oscuro italic' : 'text-2xl'}`}>{precioCatalogo(p.precio)}</p>
           <p className="mt-1 text-xs text-neutral-500">SKU {p.sku}</p>
           <div className="filete-oro my-8" />
           {p.descripcion && <p className="leading-relaxed whitespace-pre-line text-neutral-700">{p.descripcion}</p>}
 
           <div className="mt-8">
-            <BotonAgregar producto={{ sku: p.sku, nombre: p.nombre, precio: p.precio, imagenUrl: p.imagenUrl, stock: p.stock }} />
+            {p.precio == null ? (
+              <div className="space-y-3">
+                {p.stock <= 0 && <p className="eyebrow text-neutral-500">Agotado por ahora</p>}
+                <a
+                  href={urlWhatsApp(
+                    `Hola Mía María, me interesa ${p.nombre} (${p.sku}). ¿Me compartes precio${p.stock <= 0 ? ' y cuándo vuelve a estar disponible' : ' y disponibilidad'}?`,
+                  )}
+                  target="_blank"
+                  rel="noopener"
+                  className="btn-negro w-full"
+                >
+                  <MessageCircle size={15} strokeWidth={1.5} /> Consultar precio por WhatsApp
+                </a>
+                <p className="text-xs text-neutral-500">Te respondemos con precio, fotos de la pieza y opciones de entrega.</p>
+              </div>
+            ) : (
+              <BotonAgregar producto={{ sku: p.sku, nombre: p.nombre, precio: p.precio, imagenUrl: p.imagenUrl, stock: p.stock }} />
+            )}
           </div>
-          <a
-            href={urlWhatsApp(`Hola Mía María, me interesa la pieza ${p.nombre} (${p.sku}).`)}
-            target="_blank"
-            rel="noopener"
-            className="eyebrow mt-4 inline-flex items-center gap-2 text-neutral-600 hover:text-tinta"
-          >
-            <MessageCircle size={15} /> Preguntar por WhatsApp
-          </a>
+          {p.precio != null && (
+            <a
+              href={urlWhatsApp(`Hola Mía María, me interesa la pieza ${p.nombre} (${p.sku}).`)}
+              target="_blank"
+              rel="noopener"
+              className="eyebrow mt-4 inline-flex items-center gap-2 text-neutral-600 hover:text-tinta"
+            >
+              <MessageCircle size={15} /> Preguntar por WhatsApp
+            </a>
+          )}
 
           <ul className="mt-10 space-y-4 border-t border-hueso pt-8 text-sm text-neutral-600">
             <li className="flex gap-3">

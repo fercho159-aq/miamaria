@@ -31,7 +31,7 @@ function precioDe(v: unknown) {
 
 /**
  * Carga el inventario desde el Excel de Mía María (SKU, nombre, descripción, categoría,
- * precio y, si viene, existencia). Si el SKU ya existe se actualiza; si no, se crea.
+ * precio y existencia; precio vacío = a consultar). Si el SKU ya existe se actualiza; si no, se crea.
  */
 export async function importarExcel(_: ImportResult, form: FormData): Promise<ImportResult> {
   await requireAdmin()
@@ -65,7 +65,7 @@ export async function importarExcel(_: ImportResult, form: FormData): Promise<Im
       if (!mapa[campo] && alias.map(norm).includes(n)) mapa[campo] = h
     }
   }
-  const faltan = ['sku', 'nombre', 'precio'].filter((c) => !mapa[c])
+  const faltan = ['sku', 'nombre'].filter((c) => !mapa[c])
   if (faltan.length) {
     return { ok: false, error: `No encontré las columnas: ${faltan.join(', ')}. Revisa los encabezados de la primera fila.` }
   }
@@ -82,9 +82,11 @@ export async function importarExcel(_: ImportResult, form: FormData): Promise<Im
     const linea = n + 2
     const sku = String(fila[mapa.sku] ?? '').trim().toUpperCase()
     const nombre = String(fila[mapa.nombre] ?? '').trim()
-    const precio = precioDe(fila[mapa.precio])
+    // Precio vacío o sin columna = "a consultar" (al actualizar se conserva el que ya tenía)
+    const precioCrudo = mapa.precio ? fila[mapa.precio] : ''
+    const precio = precioCrudo === '' || precioCrudo == null ? null : precioDe(precioCrudo)
     if (!sku && !nombre) continue
-    if (!sku || !nombre || !Number.isFinite(precio) || precio < 0) {
+    if (!sku || !nombre || (precio !== null && (!Number.isFinite(precio) || precio < 0))) {
       omitidos.push(`Fila ${linea}: ${!sku ? 'sin SKU' : !nombre ? 'sin nombre' : 'precio no válido'}`)
       continue
     }
@@ -119,7 +121,7 @@ export async function importarExcel(_: ImportResult, form: FormData): Promise<Im
         nombre = EXCLUDED.nombre,
         descripcion = CASE WHEN ${!!mapa.descripcion} THEN EXCLUDED.descripcion ELSE productos.descripcion END,
         categoria_id = COALESCE(EXCLUDED.categoria_id, productos.categoria_id),
-        precio = EXCLUDED.precio,
+        precio = CASE WHEN ${precio !== null} THEN EXCLUDED.precio ELSE productos.precio END,
         stock = CASE WHEN ${stock !== null} THEN EXCLUDED.stock ELSE productos.stock END,
         updated_at = NOW()
       RETURNING (xmax = 0) AS nuevo

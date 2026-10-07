@@ -19,7 +19,8 @@ export interface Producto {
   categoriaId: number | null
   categoria: string | null
   categoriaSlug: string | null
-  precio: number
+  /** null = precio a consultar (se pide por WhatsApp, no entra al carrito) */
+  precio: number | null
   stock: number
   imagenUrl: string | null
   /** Segunda foto (ej. la pieza puesta). */
@@ -36,7 +37,7 @@ const toProducto = (r: Row): Producto => ({
   categoriaId: r.categoria_id,
   categoria: r.categoria,
   categoriaSlug: r.categoria_slug,
-  precio: Number(r.precio),
+  precio: r.precio == null ? null : Number(r.precio),
   stock: Number(r.stock),
   imagenUrl: r.imagen_url,
   imagen2Url: r.imagen2_url ?? null,

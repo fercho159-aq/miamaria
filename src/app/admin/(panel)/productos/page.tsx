@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { FileSpreadsheet, Plus, Search } from 'lucide-react'
 import { FotoProducto } from '@/components/foto-producto'
 import { getProductosAdmin } from '@/lib/data'
-import { precio } from '@/lib/format'
+import { precioCatalogo } from '@/lib/format'
 import { StockRapido } from './stock-rapido'
 
 export const metadata = { title: 'Productos' }
@@ -62,7 +62,7 @@ export default async function ProductosPage({ searchParams }: PageProps<'/admin/
                     <span className="block text-xs text-neutral-400">{p.sku}</span>
                   </td>
                   <td className="px-4 py-2 text-neutral-600">{p.categoria ?? '—'}</td>
-                  <td className="px-4 py-2 text-right whitespace-nowrap">{precio(p.precio)}</td>
+                  <td className="px-4 py-2 text-right whitespace-nowrap">{p.precio == null ? <span className="text-neutral-400">A consultar</span> : precioCatalogo(p.precio)}</td>
                   <td className="px-4 py-2">
                     <StockRapido id={p.id} stock={p.stock} />
                   </td>

@@ -16,7 +16,7 @@ export default function ImportarPage() {
             <b>SKU</b> (obligatoria) — si ya existe, el producto se actualiza; si no, se crea.
           </li>
           <li>
-            <b>Nombre</b> y <b>Precio</b> (obligatorias).
+            <b>Nombre</b> (obligatoria) y <b>Precio</b> — si va vacío, el producto se publica como “precio a consultar”.
           </li>
           <li>
             <b>Descripción</b> y <b>Categoría</b> — las categorías nuevas se crean solas.

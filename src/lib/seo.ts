@@ -68,7 +68,7 @@ export function datosProducto(p: {
   sku: string
   nombre: string
   descripcion: string
-  precio: number
+  precio: number | null
   stock: number
   imagenUrl: string | null
   imagen2Url: string | null
@@ -83,7 +83,8 @@ export function datosProducto(p: {
     image: [p.imagenUrl, p.imagen2Url].filter(Boolean).map((u) => abs(u!)),
     brand: { '@type': 'Brand', name: 'Mía María' },
     ...(p.categoria ? { category: p.categoria } : {}),
-    offers: {
+    // Sin precio publicado no se declara oferta (Google la exige con precio)
+    ...(p.precio == null ? {} : { offers: {
       '@type': 'Offer',
       url: abs(urlProducto(p.sku)),
       priceCurrency: 'MXN',
@@ -91,6 +92,6 @@ export function datosProducto(p: {
       availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       itemCondition: 'https://schema.org/NewCondition',
       seller: { '@id': `${sitio.url}/#tienda` },
-    },
+    } }),
   }
 }
