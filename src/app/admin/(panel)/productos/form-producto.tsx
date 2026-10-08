@@ -6,8 +6,33 @@ import { ImagePlus, Loader2 } from 'lucide-react'
 import { eliminarProducto, guardarProducto } from '@/actions/productos'
 import type { Categoria, Producto } from '@/lib/data'
 
+// Vercel rechaza envíos de más de 4.5 MB, y una foto de celular suele pesar más: se reduce
+// en el navegador antes de subirla (lado mayor de 1800 px, JPG).
+const LADO_MAXIMO = 1800
+const PESO_SIN_REDUCIR = 600 * 1024
+const PESO_MAXIMO_ENVIO = 4 * 1024 * 1024
+
+async function reducirFoto(file: File): Promise<File> {
+  if (file.size <= PESO_SIN_REDUCIR && ['image/jpeg', 'image/webp'].includes(file.type)) return file
+  const bitmap = await createImageBitmap(file)
+  const escala = Math.min(1, LADO_MAXIMO / Math.max(bitmap.width, bitmap.height))
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.round(bitmap.width * escala)
+  canvas.height = Math.round(bitmap.height * escala)
+  const ctx = canvas.getContext('2d')!
+  // Fondo blanco: el JPG no guarda transparencia.
+  ctx.fillStyle = '#fff'
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+  bitmap.close()
+  const blob = await new Promise<Blob | null>((ok) => canvas.toBlob(ok, 'image/jpeg', 0.85))
+  if (!blob) throw new Error('No se pudo procesar la foto')
+  return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' })
+}
+
 export function FormProducto({ producto, categorias, creado }: { producto?: Producto; categorias: Categoria[]; creado?: boolean }) {
   const [state, action, pending] = useActionState(guardarProducto, creado ? { ok: 'Producto creado' } : undefined)
+  const [errorFotos, setErrorFotos] = useState<string | null>(null)
 
   return (
     <form
@@ -15,6 +40,9 @@ export function FormProducto({ producto, categorias, creado }: { producto?: Prod
       onSubmit={(e) => {
         e.preventDefault()
         const data = new FormData(e.currentTarget)
+        const peso = ['foto', 'foto2'].reduce((s, c) => s + ((data.get(c) as File | null)?.size ?? 0), 0)
+        if (peso > PESO_MAXIMO_ENVIO) return setErrorFotos('Las fotos pesan demasiado para subirlas juntas. Sube una, guarda, y luego la otra.')
+        setErrorFotos(null)
         startTransition(() => action(data))
       }}
       className="grid gap-6 lg:grid-cols-[1fr_300px]"
@@ -74,7 +102,7 @@ export function FormProducto({ producto, categorias, creado }: { producto?: Prod
           nombre="foto"
           quitarNombre="quitarFoto"
           inicial={producto?.imagenUrl ?? null}
-          ayuda="JPG, PNG o WEBP, hasta 5 MB. Ideal vertical 4:5."
+          ayuda="JPG, PNG o WEBP. Ideal vertical 4:5."
         />
         <CampoFoto
           titulo="Segunda foto (opcional)"
@@ -85,6 +113,7 @@ export function FormProducto({ producto, categorias, creado }: { producto?: Prod
           compacta
         />
 
+        {errorFotos && <p className="border-l-2 border-red-700 bg-red-50 p-3 text-sm text-red-800">{errorFotos}</p>}
         {state?.error && <p className="border-l-2 border-red-700 bg-red-50 p-3 text-sm text-red-800">{state.error}</p>}
         {state?.ok && <p className="border-l-2 border-emerald-700 bg-emerald-50 p-3 text-sm text-emerald-800">{state.ok}</p>}
 
@@ -127,6 +156,7 @@ function CampoFoto({
 }) {
   const [preview, setPreview] = useState<string | null>(inicial)
   const [quitar, setQuitar] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   return (
     <div className="bg-white p-5">
       <p className="mb-3 text-sm">{titulo}</p>
@@ -147,16 +177,27 @@ function CampoFoto({
           name={nombre}
           accept="image/jpeg,image/png,image/webp,image/avif"
           className="sr-only"
-          onChange={(e) => {
-            const f = e.target.files?.[0]
-            if (f) {
-              setPreview(URL.createObjectURL(f))
+          onChange={async (e) => {
+            const input = e.currentTarget
+            const f = input.files?.[0]
+            if (!f) return
+            setError(null)
+            try {
+              const lista = new DataTransfer()
+              lista.items.add(await reducirFoto(f))
+              input.files = lista.files
+              setPreview(URL.createObjectURL(lista.files[0]))
               setQuitar(false)
+            } catch {
+              // El navegador no pudo abrirla (por ejemplo HEIC de iPhone): no se envía.
+              input.value = ''
+              setError('No se pudo leer esa foto. Usa una en JPG, PNG o WEBP.')
             }
           }}
         />
       </label>
       <p className="mt-2 text-xs text-neutral-500">{ayuda}</p>
+      {error && <p className="mt-2 text-xs text-red-700">{error}</p>}
       {inicial && (
         <label className="mt-2 flex items-center gap-2 text-xs text-neutral-600">
           <input type="checkbox" name={quitarNombre} checked={quitar} onChange={(e) => setQuitar(e.target.checked)} />

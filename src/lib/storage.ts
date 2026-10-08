@@ -20,6 +20,10 @@ export async function guardarImagen(file: File, sku: string) {
     const blob = await put(`productos/${nombre}`, file, { access: 'public', contentType: file.type })
     return blob.url
   }
+  // En Vercel no se puede escribir en disco: sin Blob no hay dónde guardar la foto.
+  if (process.env.VERCEL) {
+    throw new Error('Falta conectar el almacén de fotos (Vercel Blob). El producto se puede guardar sin foto mientras tanto.')
+  }
   const dir = path.join(process.cwd(), 'public', 'uploads')
   await fs.mkdir(dir, { recursive: true })
   await fs.writeFile(path.join(dir, nombre), Buffer.from(await file.arrayBuffer()))
