@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ChevronLeft, ExternalLink } from 'lucide-react'
 import { getCategorias, getProductoAdmin } from '@/lib/data'
+import { urlProducto } from '@/lib/seo'
 import { FormProducto } from '../form-producto'
 
 export default async function EditarProducto({ params, searchParams }: PageProps<'/admin/productos/[id]'>) {
@@ -18,7 +19,7 @@ export default async function EditarProducto({ params, searchParams }: PageProps
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="font-serif text-4xl">{producto.nombre}</h1>
         {producto.activo && (
-          <Link href={`/producto/${encodeURIComponent(producto.sku)}`} target="_blank" className="inline-flex items-center gap-1 text-sm text-oro-oscuro hover:underline">
+          <Link href={urlProducto(producto.clave)} target="_blank" className="inline-flex items-center gap-1 text-sm text-oro-oscuro hover:underline">
             Ver en la tienda <ExternalLink size={14} />
           </Link>
         )}

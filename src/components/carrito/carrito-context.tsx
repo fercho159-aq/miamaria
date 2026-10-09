@@ -3,6 +3,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 export interface ItemCarrito {
+  /** Id del producto: identifica la pieza (el SKU puede repetirse). */
+  id: number
   sku: string
   nombre: string
   precio: number
@@ -19,9 +21,9 @@ interface CarritoCtx {
   abierto: boolean
   setAbierto: (v: boolean) => void
   agregar: (item: Omit<ItemCarrito, 'cantidad'>, cantidad?: number) => void
-  cambiarCantidad: (sku: string, cantidad: number) => void
-  quitar: (sku: string) => void
-  limitar: (ajustes: { sku: string; disponible: number }[]) => void
+  cambiarCantidad: (id: number, cantidad: number) => void
+  quitar: (id: number) => void
+  limitar: (ajustes: { id: number; disponible: number }[]) => void
   vaciar: () => void
 }
 
@@ -36,8 +38,9 @@ export function CarritoProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(KEY)
+      // Carritos guardados antes de identificar por id: esas piezas se descartan.
       // eslint-disable-next-line react-hooks/set-state-in-effect -- se lee una vez al montar
-      if (raw) setItems(JSON.parse(raw))
+      if (raw) setItems((JSON.parse(raw) as ItemCarrito[]).filter((i) => typeof i?.id === 'number'))
     } catch {}
     setListo(true)
   }, [])
@@ -51,10 +54,10 @@ export function CarritoProvider({ children }: { children: React.ReactNode }) {
 
   const agregar = useCallback<CarritoCtx['agregar']>((item, cantidad = 1) => {
     setItems((prev) => {
-      const actual = prev.find((i) => i.sku === item.sku)
+      const actual = prev.find((i) => i.id === item.id)
       if (actual) {
         return prev.map((i) =>
-          i.sku === item.sku ? { ...i, ...item, cantidad: Math.min(i.cantidad + cantidad, item.stock) } : i,
+          i.id === item.id ? { ...i, ...item, cantidad: Math.min(i.cantidad + cantidad, item.stock) } : i,
         )
       }
       return [...prev, { ...item, cantidad: Math.min(cantidad, item.stock) }]
@@ -62,21 +65,21 @@ export function CarritoProvider({ children }: { children: React.ReactNode }) {
     setAbierto(true)
   }, [])
 
-  const cambiarCantidad = useCallback((sku: string, cantidad: number) => {
+  const cambiarCantidad = useCallback((id: number, cantidad: number) => {
     setItems((prev) =>
       prev
-        .map((i) => (i.sku === sku ? { ...i, cantidad: Math.max(0, Math.min(cantidad, i.stock)) } : i))
+        .map((i) => (i.id === id ? { ...i, cantidad: Math.max(0, Math.min(cantidad, i.stock)) } : i))
         .filter((i) => i.cantidad > 0),
     )
   }, [])
 
-  const quitar = useCallback((sku: string) => setItems((prev) => prev.filter((i) => i.sku !== sku)), [])
+  const quitar = useCallback((id: number) => setItems((prev) => prev.filter((i) => i.id !== id)), [])
 
-  const limitar = useCallback((ajustes: { sku: string; disponible: number }[]) => {
-    const m = new Map(ajustes.map((a) => [a.sku, a.disponible]))
+  const limitar = useCallback((ajustes: { id: number; disponible: number }[]) => {
+    const m = new Map(ajustes.map((a) => [a.id, a.disponible]))
     setItems((prev) =>
       prev
-        .map((i) => (m.has(i.sku) ? { ...i, stock: m.get(i.sku)!, cantidad: Math.min(i.cantidad, m.get(i.sku)!) } : i))
+        .map((i) => (m.has(i.id) ? { ...i, stock: m.get(i.id)!, cantidad: Math.min(i.cantidad, m.get(i.id)!) } : i))
         .filter((i) => i.cantidad > 0),
     )
   }, [])

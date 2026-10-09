@@ -70,7 +70,7 @@ export function FormProducto({ producto, categorias, creado }: { producto?: Prod
               <option value="">Sin categoría</option>
               {categorias.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.nombre}
+                  {c.ruta}
                 </option>
               ))}
             </select>

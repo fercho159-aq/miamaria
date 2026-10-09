@@ -3,7 +3,8 @@ import { sitio } from './config'
 export const abs = (ruta: string) => (ruta.startsWith('http') ? ruta : `${sitio.url}${ruta.startsWith('/') ? '' : '/'}${ruta}`)
 
 export const urlColeccion = (slug: string) => `/coleccion/${slug}`
-export const urlProducto = (sku: string) => `/producto/${encodeURIComponent(sku)}`
+/** `clave` es Producto.clave: el SKU o, si se repite, "SKU~id". */
+export const urlProducto = (clave: string) => `/producto/${encodeURIComponent(clave)}`
 
 export const descripcionColeccion = (nombre: string) =>
   `${nombre} Mía María: joyería de autor en plata, acero y chapa de oro. Pide por WhatsApp y recoge en Masaryk 998, Polanco, o recibe en todo México.`
@@ -66,6 +67,7 @@ export function migas(items: { nombre: string; ruta: string }[]) {
 
 export function datosProducto(p: {
   sku: string
+  clave: string
   nombre: string
   descripcion: string
   precio: number | null
@@ -86,7 +88,7 @@ export function datosProducto(p: {
     // Sin precio publicado no se declara oferta (Google la exige con precio)
     ...(p.precio == null ? {} : { offers: {
       '@type': 'Offer',
-      url: abs(urlProducto(p.sku)),
+      url: abs(urlProducto(p.clave)),
       priceCurrency: 'MXN',
       price: p.precio.toFixed(2),
       availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',

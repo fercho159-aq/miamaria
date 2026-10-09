@@ -10,7 +10,7 @@ import { TarjetaProducto } from '@/components/tarjeta-producto'
 import { ENVIO_GRATIS_DESDE, entregas, sitio } from '@/lib/config'
 import { getCategorias, getProductos } from '@/lib/data'
 import { precio } from '@/lib/format'
-import { datosSitio, datosTienda, urlColeccion } from '@/lib/seo'
+import { datosSitio, datosTienda, urlColeccion, urlProducto } from '@/lib/seo'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/' },
@@ -79,12 +79,13 @@ export default async function Inicio() {
   const [todos, categorias] = await Promise.all([getProductos(), getCategorias()])
   const destacados = todos.filter((p) => p.destacado)
   const vitrina = (destacados.length >= 4 ? destacados : todos).slice(0, 12)
-  const colecciones = categorias.filter((c) => (c.productos ?? 0) > 0)
+  // Solo las categorías principales; sus subcategorías se ven dentro de cada colección.
+  const colecciones = categorias.filter((c) => c.parentId === null && (c.productos ?? 0) > 0)
 
   // Galerías: fotos de la casa + fotos de productos (sin repetir).
   const deProductos: ImagenGaleria[] = todos
     .filter((p) => p.imagenUrl)
-    .map((p) => ({ src: p.imagenUrl!, alt: p.nombre, href: `/producto/${encodeURIComponent(p.sku)}` }))
+    .map((p) => ({ src: p.imagenUrl!, alt: p.nombre, href: urlProducto(p.clave) }))
   const vistas = new Set<string>()
   const galeria = [...deProductos, ...fotosCasa].filter((g) => !vistas.has(g.src) && vistas.add(g.src))
 

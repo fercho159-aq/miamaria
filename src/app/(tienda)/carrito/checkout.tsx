@@ -30,7 +30,7 @@ export function Checkout() {
         entrega,
         direccion: String(form.get('direccion') ?? ''),
         notas: String(form.get('notas') ?? ''),
-        items: items.map((i) => ({ sku: i.sku, cantidad: i.cantidad })),
+        items: items.map((i) => ({ id: i.id, cantidad: i.cantidad })),
       })
       if (!res.ok) {
         if (res.ajustes) limitar(res.ajustes)
@@ -177,20 +177,20 @@ export function Checkout() {
           <h2 className="eyebrow mb-5">Tu pedido</h2>
           <ul className="divide-y divide-hueso">
             {items.map((i) => (
-              <li key={i.sku} className="flex gap-3 py-4">
+              <li key={i.id} className="flex gap-3 py-4">
                 <div className="relative h-20 w-16 shrink-0 overflow-hidden bg-tinta">
                   <FotoProducto src={i.imagenUrl} alt={i.nombre} sizes="64px" />
                 </div>
                 <div className="flex flex-1 flex-col">
                   <div className="flex justify-between gap-2">
                     <p className="font-serif text-lg leading-tight">{i.nombre}</p>
-                    <button type="button" aria-label={`Quitar ${i.nombre}`} onClick={() => quitar(i.sku)} className="self-start text-neutral-400 hover:text-tinta">
+                    <button type="button" aria-label={`Quitar ${i.nombre}`} onClick={() => quitar(i.id)} className="self-start text-neutral-400 hover:text-tinta">
                       <X size={15} />
                     </button>
                   </div>
                   <div className="mt-auto flex items-center justify-between">
                     <div className="flex items-center border border-neutral-300 bg-white">
-                      <button type="button" aria-label="Menos" className="p-1.5" onClick={() => cambiarCantidad(i.sku, i.cantidad - 1)}>
+                      <button type="button" aria-label="Menos" className="p-1.5" onClick={() => cambiarCantidad(i.id, i.cantidad - 1)}>
                         <Minus size={11} />
                       </button>
                       <span className="w-6 text-center text-xs">{i.cantidad}</span>
@@ -199,7 +199,7 @@ export function Checkout() {
                         aria-label="Más"
                         className="p-1.5 disabled:opacity-30"
                         disabled={i.cantidad >= i.stock}
-                        onClick={() => cambiarCantidad(i.sku, i.cantidad + 1)}
+                        onClick={() => cambiarCantidad(i.id, i.cantidad + 1)}
                       >
                         <Plus size={11} />
                       </button>

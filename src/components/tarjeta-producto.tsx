@@ -11,7 +11,7 @@ export function TarjetaProducto({ p }: { p: Producto }) {
   const agotado = p.stock <= 0
   return (
     <article className="group flex flex-col">
-      <Link href={urlProducto(p.sku)} className="relative block aspect-[4/5] overflow-hidden bg-tinta">
+      <Link href={urlProducto(p.clave)} className="relative block aspect-[4/5] overflow-hidden bg-tinta">
         <FotoProducto
           src={p.imagenUrl}
           alt={p.nombre}
@@ -39,7 +39,7 @@ export function TarjetaProducto({ p }: { p: Producto }) {
       <div className="flex flex-1 flex-col pt-4 text-center">
         {p.categoria && <p className="eyebrow text-[0.6rem] text-oro-oscuro">{p.categoria}</p>}
         <h3 className="mt-1 font-serif text-xl leading-tight">
-          <Link href={urlProducto(p.sku)}>{p.nombre}</Link>
+          <Link href={urlProducto(p.clave)}>{p.nombre}</Link>
         </h3>
         <p className={`mt-1 text-sm tracking-wide ${p.precio == null ? 'text-oro-oscuro italic' : 'text-neutral-600'}`}>
           {precioCatalogo(p.precio)}
@@ -47,7 +47,7 @@ export function TarjetaProducto({ p }: { p: Producto }) {
         <div className="mt-auto pt-3">
           {p.precio == null ? (
             <EnlaceConsulta
-              sku={p.sku}
+              productoId={p.id}
               href={urlWhatsApp(`Hola Mía María, me interesa ${p.nombre} (${p.sku}). ¿Me compartes precio y disponibilidad?`)}
               className="eyebrow block w-full border border-tinta/80 py-2.5 text-[0.62rem] transition duration-500 hover:bg-tinta hover:text-white"
             >
@@ -55,7 +55,7 @@ export function TarjetaProducto({ p }: { p: Producto }) {
             </EnlaceConsulta>
           ) : (
             <BotonAgregar
-              producto={{ sku: p.sku, nombre: p.nombre, precio: p.precio, imagenUrl: p.imagenUrl, stock: p.stock }}
+              producto={{ id: p.id, sku: p.sku, nombre: p.nombre, precio: p.precio, imagenUrl: p.imagenUrl, stock: p.stock }}
               variante="compacto"
             />
           )}

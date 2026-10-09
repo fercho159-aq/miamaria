@@ -13,13 +13,15 @@ export default function ImportarPage() {
         </p>
         <ul className="list-disc space-y-1 pl-5">
           <li>
-            <b>SKU</b> (obligatoria) — si ya existe, el producto se actualiza; si no, se crea.
+            <b>SKU</b> (obligatoria) — si ya existe, el producto se actualiza; si no, se crea. Si varios productos comparten SKU, se
+            distinguen por el nombre.
           </li>
           <li>
             <b>Nombre</b> (obligatoria) y <b>Precio</b> — si va vacío, el producto se publica como “precio a consultar”.
           </li>
           <li>
-            <b>Descripción</b> y <b>Categoría</b> — las categorías nuevas se crean solas.
+            <b>Descripción</b> y <b>Categoría</b> — las categorías nuevas se crean solas. Para una subcategoría escribe{' '}
+            <b>Collares &gt; Plata</b>.
           </li>
           <li>
             <b>Existencia</b> (o Stock / Cantidad) — opcional. Si no viene, se conserva la existencia actual.

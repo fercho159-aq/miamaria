@@ -6,7 +6,17 @@ import { getCategorias } from '@/lib/data'
 import { descripcionColeccion, migas, urlColeccion } from '@/lib/seo'
 
 async function coleccion(slug: string) {
-  return (await getCategorias()).find((c) => c.slug === slug) ?? null
+  const todas = await getCategorias()
+  const c = todas.find((x) => x.slug === slug)
+  if (!c) return null
+  // De la principal a la actual, para las migas.
+  const camino = [c]
+  while (camino[0].parentId != null) {
+    const madre = todas.find((x) => x.id === camino[0].parentId)
+    if (!madre) break
+    camino.unshift(madre)
+  }
+  return { ...c, camino }
 }
 
 export async function generateMetadata({ params, searchParams }: PageProps<'/coleccion/[slug]'>): Promise<Metadata> {
@@ -31,7 +41,7 @@ export default async function ColeccionPage({ params, searchParams }: PageProps<
       <JsonLd
         data={migas([
           { nombre: 'Catálogo', ruta: '/catalogo' },
-          { nombre: c.nombre, ruta: urlColeccion(c.slug) },
+          ...c.camino.map((x) => ({ nombre: x.nombre, ruta: urlColeccion(x.slug) })),
         ])}
       />
       <VistaCatalogo categoria={c.slug} q={typeof q === 'string' ? q : undefined} descripcion={descripcionColeccion(c.nombre)} />

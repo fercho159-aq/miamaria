@@ -62,21 +62,21 @@ export function CajonCarrito() {
             </div>
             <ul className="flex-1 divide-y divide-neutral-100 overflow-y-auto px-6">
               {items.map((i) => (
-                <li key={i.sku} className="flex gap-4 py-5">
+                <li key={i.id} className="flex gap-4 py-5">
                   <div className="relative h-24 w-20 shrink-0 overflow-hidden bg-tinta">
                     <FotoProducto src={i.imagenUrl} alt={i.nombre} sizes="80px" />
                   </div>
                   <div className="flex flex-1 flex-col">
                     <div className="flex justify-between gap-2">
                       <p className="font-serif text-lg leading-tight">{i.nombre}</p>
-                      <button type="button" aria-label={`Quitar ${i.nombre}`} onClick={() => quitar(i.sku)} className="self-start text-neutral-400 hover:text-tinta">
+                      <button type="button" aria-label={`Quitar ${i.nombre}`} onClick={() => quitar(i.id)} className="self-start text-neutral-400 hover:text-tinta">
                         <X size={16} />
                       </button>
                     </div>
                     <p className="text-xs text-neutral-500">{i.sku}</p>
                     <div className="mt-auto flex items-center justify-between">
                       <div className="flex items-center border border-neutral-200">
-                        <button type="button" aria-label="Menos" className="p-1.5" onClick={() => cambiarCantidad(i.sku, i.cantidad - 1)}>
+                        <button type="button" aria-label="Menos" className="p-1.5" onClick={() => cambiarCantidad(i.id, i.cantidad - 1)}>
                           <Minus size={12} />
                         </button>
                         <span className="w-7 text-center text-sm">{i.cantidad}</span>
@@ -85,7 +85,7 @@ export function CajonCarrito() {
                           aria-label="Más"
                           className="p-1.5 disabled:opacity-30"
                           disabled={i.cantidad >= i.stock}
-                          onClick={() => cambiarCantidad(i.sku, i.cantidad + 1)}
+                          onClick={() => cambiarCantidad(i.id, i.cantidad + 1)}
                         >
                           <Plus size={12} />
                         </button>

@@ -35,7 +35,7 @@ export default async function ConsultasPage() {
                 </thead>
                 <tbody className="divide-y divide-neutral-100">
                   {porProducto.map((c) => (
-                    <tr key={c.sku} className="hover:bg-marfil">
+                    <tr key={`${c.productoId}-${c.sku}`} className="hover:bg-marfil">
                       <td className="px-5 py-3">
                         {c.productoId ? (
                           <Link href={`/admin/productos/${c.productoId}`} className="font-medium hover:text-oro-oscuro">

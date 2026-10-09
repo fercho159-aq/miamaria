@@ -21,7 +21,7 @@ const pedidoSchema = z
     direccion: z.string().trim().max(400).optional(),
     notas: z.string().trim().max(500).optional(),
     items: z
-      .array(z.object({ sku: z.string().min(1), cantidad: z.number().int().min(1).max(50) }))
+      .array(z.object({ id: z.number().int().positive(), cantidad: z.number().int().min(1).max(50) }))
       .min(1, 'Tu carrito está vacío')
       .max(60),
   })
@@ -34,7 +34,7 @@ export type PedidoInput = z.input<typeof pedidoSchema>
 
 export type CrearPedidoResult =
   | { ok: true; folio: string; mensaje: string }
-  | { ok: false; error: string; ajustes?: { sku: string; disponible: number }[] }
+  | { ok: false; error: string; ajustes?: { id: number; disponible: number }[] }
 
 /**
  * Crea la pre-orden desde el carrito. Precios y existencias se toman de la base (no del
@@ -46,21 +46,21 @@ export async function crearPedido(input: PedidoInput): Promise<CrearPedidoResult
   const d = parsed.data
   const sql = getDb()
 
-  // Agrupa por SKU por si llegó repetido.
-  const cantidades = new Map<string, number>()
-  for (const i of d.items) cantidades.set(i.sku, (cantidades.get(i.sku) ?? 0) + i.cantidad)
-  const skus = [...cantidades.keys()]
+  // Agrupa por producto por si llegó repetido. Se identifica por id: el SKU puede repetirse.
+  const cantidades = new Map<number, number>()
+  for (const i of d.items) cantidades.set(i.id, (cantidades.get(i.id) ?? 0) + i.cantidad)
+  const ids = [...cantidades.keys()]
 
   const productos = await sql`
-    SELECT id, sku, nombre, precio, stock FROM productos WHERE activo AND precio IS NOT NULL AND sku = ANY(${skus})
+    SELECT id, sku, nombre, precio, stock FROM productos WHERE activo AND precio IS NOT NULL AND id = ANY(${ids}::int[])
   `
-  const porSku = new Map(productos.map((p) => [p.sku as string, p]))
+  const porId = new Map(productos.map((p) => [p.id as number, p]))
 
-  const ajustes: { sku: string; disponible: number }[] = []
-  for (const [sku, cant] of cantidades) {
-    const p = porSku.get(sku)
+  const ajustes: { id: number; disponible: number }[] = []
+  for (const [id, cant] of cantidades) {
+    const p = porId.get(id)
     const disponible = p ? Number(p.stock) : 0
-    if (disponible < cant) ajustes.push({ sku, disponible })
+    if (disponible < cant) ajustes.push({ id, disponible })
   }
   if (ajustes.length) {
     return {
@@ -70,9 +70,9 @@ export async function crearPedido(input: PedidoInput): Promise<CrearPedidoResult
     }
   }
 
-  const items = skus.map((sku) => {
-    const p = porSku.get(sku)!
-    return { productoId: p.id as number, sku, nombre: p.nombre as string, precio: Number(p.precio), cantidad: cantidades.get(sku)! }
+  const items = ids.map((id) => {
+    const p = porId.get(id)!
+    return { productoId: id, sku: p.sku as string, nombre: p.nombre as string, precio: Number(p.precio), cantidad: cantidades.get(id)! }
   })
   const subtotal = items.reduce((s, i) => s + i.precio * i.cantidad, 0)
   const envio = costoEnvio(d.entrega, subtotal)

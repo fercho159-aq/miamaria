@@ -9,6 +9,17 @@ export async function VistaCatalogo({ categoria, q, descripcion }: { categoria?:
   const [productos, categorias] = await Promise.all([getProductos({ categoria, q }), getCategorias()])
   const actual = categorias.find((c) => c.slug === categoria)
   const visibles = categorias.filter((c) => (c.productos ?? 0) > 0)
+  const principales = visibles.filter((c) => c.parentId === null)
+  // Segunda fila: las subcategorías de la colección actual o, si no tiene, sus hermanas.
+  const hijas = actual ? visibles.filter((c) => c.parentId === actual.id) : []
+  const sub = hijas.length || !actual?.parentId ? hijas : visibles.filter((c) => c.parentId === actual.parentId)
+  const madre = sub.length ? categorias.find((c) => c.id === sub[0].parentId) : undefined
+  // La principal de la rama actual queda marcada aunque se esté viendo una subcategoría.
+  let raiz = actual
+  while (raiz && raiz.parentId != null) {
+    const madreId = raiz.parentId
+    raiz = categorias.find((c) => c.id === madreId)
+  }
   const base = categoria ? urlColeccion(categoria) : '/catalogo'
   const conQ = (ruta: string) => (q ? `${ruta}?q=${encodeURIComponent(q)}` : ruta)
 
@@ -20,7 +31,7 @@ export async function VistaCatalogo({ categoria, q, descripcion }: { categoria?:
   return (
     <div className="mx-auto max-w-7xl px-4 pt-14 pb-24 sm:px-6">
       <header className="text-center">
-        <p className="eyebrow text-oro-oscuro">Mía María</p>
+        <p className="eyebrow text-oro-oscuro">{actual && actual.nivel > 0 ? actual.ruta.split(' › ').slice(0, -1).join(' · ') : 'Mía María'}</p>
         <h1 className="mt-3 font-serif text-5xl">{actual?.nombre ?? 'Catálogo'}</h1>
         <div className="filete-oro mx-auto mt-6 w-40" />
         {descripcion && <p className="mx-auto mt-6 max-w-2xl leading-relaxed text-neutral-600">{descripcion}</p>}
@@ -31,16 +42,28 @@ export async function VistaCatalogo({ categoria, q, descripcion }: { categoria?:
           <Link href={conQ('/catalogo')} className={chip(!categoria)}>
             Todo
           </Link>
-          {visibles.map((c) => (
+          {principales.map((c) => (
             <Link
               key={c.slug}
               href={conQ(urlColeccion(c.slug))}
-              className={chip(c.slug === categoria)}
+              className={chip(c.id === raiz?.id)}
             >
               {c.nombre}
             </Link>
           ))}
         </nav>
+        {sub.length > 0 && madre && (
+          <nav className="flex max-w-full gap-2 overflow-x-auto pb-1" aria-label={`Dentro de ${madre.nombre}`}>
+            <Link href={conQ(urlColeccion(madre.slug))} className={chip(madre.id === actual?.id)}>
+              Todo {madre.nombre}
+            </Link>
+            {sub.map((c) => (
+              <Link key={c.slug} href={conQ(urlColeccion(c.slug))} className={chip(c.id === actual?.id)}>
+                {c.nombre}
+              </Link>
+            ))}
+          </nav>
+        )}
         <form id="buscar" action={base} className="flex w-full max-w-md scroll-mt-32 items-center border-b border-neutral-300 focus-within:border-tinta">
           <Search size={16} className="text-neutral-400" />
           <input

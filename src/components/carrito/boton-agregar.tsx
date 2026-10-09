@@ -13,7 +13,7 @@ export function BotonAgregar({
 }) {
   const { agregar, items } = useCarrito()
   const [cantidad, setCantidad] = useState(1)
-  const enCarrito = items.find((i) => i.sku === producto.sku)?.cantidad ?? 0
+  const enCarrito = items.find((i) => i.id === producto.id)?.cantidad ?? 0
   const disponible = producto.stock - enCarrito
   const agotado = producto.stock <= 0
 

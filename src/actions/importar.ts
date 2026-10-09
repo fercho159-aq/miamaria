@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import * as XLSX from 'xlsx'
 import { getDb } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
+import { slugCategoria } from '@/lib/categorias'
 import { slugify } from '@/lib/format'
 
 export type ImportResult =
@@ -31,7 +32,7 @@ function precioDe(v: unknown) {
 
 /**
  * Carga el inventario desde el Excel de Mía María (SKU, nombre, descripción, categoría,
- * precio y existencia; precio vacío = a consultar). Si el SKU ya existe se actualiza; si no, se crea.
+ * precio y existencia; precio vacío = a consultar). Si el producto ya existe se actualiza; si no, se crea.
  */
 export async function importarExcel(_: ImportResult, form: FormData): Promise<ImportResult> {
   await requireAdmin()
@@ -71,16 +72,53 @@ export async function importarExcel(_: ImportResult, form: FormData): Promise<Im
   }
 
   const sql = getDb()
-  const cats = await sql`SELECT id, nombre, slug FROM categorias`
-  const catPorSlug = new Map(cats.map((c) => [c.slug as string, c.id as number]))
+  // Categorías por madre + nombre. En el archivo una subcategoría se escribe "Collares > Plata".
+  const cats = await sql`SELECT id, nombre, parent_id FROM categorias ORDER BY id`
+  const llave = (parentId: number | null, nombre: string) => `${parentId ?? 0}|${nombre.toLowerCase()}`
+  const catPorLlave = new Map<string, number>()
+  const catPorNombre = new Map<string, number>()
+  for (const c of cats) {
+    catPorLlave.set(llave(c.parent_id, c.nombre), c.id)
+    if (!catPorNombre.has(c.nombre.toLowerCase())) catPorNombre.set(c.nombre.toLowerCase(), c.id)
+  }
   const categoriasNuevas: string[] = []
+  async function categoriaDe(texto: string) {
+    const partes = texto.split('>').map((t) => t.trim()).filter(Boolean)
+    // Un solo nombre que ya existe como subcategoría: se usa esa.
+    if (partes.length === 1 && !catPorLlave.has(llave(null, partes[0])) && catPorNombre.has(partes[0].toLowerCase())) {
+      return catPorNombre.get(partes[0].toLowerCase())!
+    }
+    let parentId: number | null = null
+    for (const [n, nombre] of partes.entries()) {
+      let id = catPorLlave.get(llave(parentId, nombre))
+      if (!id) {
+        const slug = await slugCategoria(sql, nombre, parentId)
+        const [c] = await sql`
+          INSERT INTO categorias (nombre, slug, parent_id, orden)
+          VALUES (${nombre}, ${slug}, ${parentId}, (SELECT COALESCE(MAX(orden), 0) + 1 FROM categorias)) RETURNING id
+        `
+        id = c.id as number
+        catPorLlave.set(llave(parentId, nombre), id)
+        if (!catPorNombre.has(nombre.toLowerCase())) catPorNombre.set(nombre.toLowerCase(), id)
+        categoriasNuevas.push(partes.slice(0, n + 1).join(' › '))
+      }
+      parentId = id
+    }
+    return parentId
+  }
+
+  // Cuántas veces viene cada SKU en el archivo: si se repite, las filas se distinguen por nombre.
+  const skuDe = (fila: Record<string, unknown>) => String(fila[mapa.sku] ?? '').trim().toUpperCase()
+  const vecesEnArchivo = new Map<string, number>()
+  for (const fila of filas) vecesEnArchivo.set(skuDe(fila), (vecesEnArchivo.get(skuDe(fila)) ?? 0) + 1)
+
   const omitidos: string[] = []
   let creados = 0
   let actualizados = 0
 
   for (const [n, fila] of filas.entries()) {
     const linea = n + 2
-    const sku = String(fila[mapa.sku] ?? '').trim().toUpperCase()
+    const sku = skuDe(fila)
     const nombre = String(fila[mapa.nombre] ?? '').trim()
     // Precio vacío o sin columna = "a consultar" (al actualizar se conserva el que ya tenía)
     const precioCrudo = mapa.precio ? fila[mapa.precio] : ''
@@ -92,21 +130,6 @@ export async function importarExcel(_: ImportResult, form: FormData): Promise<Im
     }
     const descripcion = mapa.descripcion ? String(fila[mapa.descripcion] ?? '').trim() : ''
 
-    let categoriaId: number | null = null
-    const catNombre = mapa.categoria ? String(fila[mapa.categoria] ?? '').trim() : ''
-    if (catNombre) {
-      const slug = slugify(catNombre)
-      if (!catPorSlug.has(slug)) {
-        const [c] = await sql`
-          INSERT INTO categorias (nombre, slug, orden)
-          VALUES (${catNombre}, ${slug}, (SELECT COALESCE(MAX(orden), 0) + 1 FROM categorias)) RETURNING id
-        `
-        catPorSlug.set(slug, c.id)
-        categoriasNuevas.push(catNombre)
-      }
-      categoriaId = catPorSlug.get(slug)!
-    }
-
     const stockCrudo = mapa.stock ? fila[mapa.stock] : ''
     const stock = stockCrudo === '' || stockCrudo == null ? null : Math.trunc(Number(stockCrudo))
     if (stock !== null && !Number.isFinite(stock)) {
@@ -114,20 +137,34 @@ export async function importarExcel(_: ImportResult, form: FormData): Promise<Im
       continue
     }
 
-    const [r] = await sql`
-      INSERT INTO productos (sku, nombre, descripcion, categoria_id, precio, stock)
-      VALUES (${sku}, ${nombre}, ${descripcion}, ${categoriaId}, ${precio}, ${stock ?? 0})
-      ON CONFLICT (sku) DO UPDATE SET
-        nombre = EXCLUDED.nombre,
-        descripcion = CASE WHEN ${!!mapa.descripcion} THEN EXCLUDED.descripcion ELSE productos.descripcion END,
-        categoria_id = COALESCE(EXCLUDED.categoria_id, productos.categoria_id),
-        precio = CASE WHEN ${precio !== null} THEN EXCLUDED.precio ELSE productos.precio END,
-        stock = CASE WHEN ${stock !== null} THEN EXCLUDED.stock ELSE productos.stock END,
-        updated_at = NOW()
-      RETURNING (xmax = 0) AS nuevo
-    `
-    if (r.nuevo) creados++
-    else actualizados++
+    const catTexto = mapa.categoria ? String(fila[mapa.categoria] ?? '').trim() : ''
+    const categoriaId = catTexto ? await categoriaDe(catTexto) : null
+
+    // El SKU puede repetirse: se actualiza el producto con el mismo SKU y nombre. Si el SKU es
+    // único (en la base y en el archivo) se actualiza ese aunque cambie el nombre; si no, se crea.
+    const existentes = await sql`SELECT id, nombre FROM productos WHERE sku = ${sku} ORDER BY id`
+    const igual = existentes.find((e) => (e.nombre as string).toLowerCase() === nombre.toLowerCase())
+    const destino = igual ?? (existentes.length === 1 && vecesEnArchivo.get(sku) === 1 ? existentes[0] : null)
+
+    if (destino) {
+      await sql`
+        UPDATE productos SET
+          nombre = ${nombre},
+          descripcion = CASE WHEN ${!!mapa.descripcion} THEN ${descripcion} ELSE descripcion END,
+          categoria_id = COALESCE(${categoriaId}::int, categoria_id),
+          precio = CASE WHEN ${precio !== null} THEN ${precio}::numeric ELSE precio END,
+          stock = CASE WHEN ${stock !== null} THEN ${stock}::int ELSE stock END,
+          updated_at = NOW()
+        WHERE id = ${destino.id}
+      `
+      actualizados++
+    } else {
+      await sql`
+        INSERT INTO productos (sku, nombre, descripcion, categoria_id, precio, stock)
+        VALUES (${sku}, ${nombre}, ${descripcion}, ${categoriaId}, ${precio}, ${stock ?? 0})
+      `
+      creados++
+    }
   }
 
   revalidatePath('/', 'layout')

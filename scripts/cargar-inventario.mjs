@@ -1,4 +1,4 @@
-// Carga (o actualiza por SKU) un inventario en JSON a la base de producción.
+// Carga (o actualiza por SKU + nombre) un inventario en JSON a la base de producción.
 //   npm run inventario:cargar -- db/datos/inventario-2026-10-05.json
 // No toca el precio de productos que ya lo tengan si el archivo trae precio null.
 import './env.mjs'
@@ -24,21 +24,27 @@ for (const nombre of [...new Set(productos.map((p) => p.categoria))]) {
   )
   cats.set(nombre, rows[0].id)
 }
+// El SKU puede repetirse: un producto se reconoce por SKU + nombre (o por SKU si solo hay uno).
 let nuevos = 0
 for (const p of productos) {
-  const { rows } = await pool.query(
-    `insert into productos (sku, nombre, descripcion, categoria_id, precio, stock, imagen_url, imagen2_url, destacado, activo)
-     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, true)
-     on conflict (sku) do update set
-       nombre = excluded.nombre, descripcion = excluded.descripcion, categoria_id = excluded.categoria_id,
-       precio = coalesce(excluded.precio, productos.precio), stock = excluded.stock,
-       imagen_url = coalesce(productos.imagen_url, excluded.imagen_url),
-       imagen2_url = coalesce(productos.imagen2_url, excluded.imagen2_url),
-       updated_at = now()
-     returning (xmax = 0) as nuevo`,
-    [p.sku, p.nombre, p.descripcion, cats.get(p.categoria), p.precio, p.existencia, p.imagen, p.imagen2, p.destacado],
-  )
-  if (rows[0].nuevo) nuevos++
+  const { rows: existentes } = await pool.query('select id, nombre from productos where sku = $1 order by id', [p.sku])
+  const destino = existentes.find((e) => e.nombre.toLowerCase() === p.nombre.toLowerCase()) ?? (existentes.length === 1 ? existentes[0] : null)
+  if (destino) {
+    await pool.query(
+      `update productos set
+         nombre = $2, descripcion = $3, categoria_id = $4, precio = coalesce($5, precio), stock = $6,
+         imagen_url = coalesce(imagen_url, $7), imagen2_url = coalesce(imagen2_url, $8), updated_at = now()
+       where id = $1`,
+      [destino.id, p.nombre, p.descripcion, cats.get(p.categoria), p.precio, p.existencia, p.imagen, p.imagen2],
+    )
+  } else {
+    await pool.query(
+      `insert into productos (sku, nombre, descripcion, categoria_id, precio, stock, imagen_url, imagen2_url, destacado, activo)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, true)`,
+      [p.sku, p.nombre, p.descripcion, cats.get(p.categoria), p.precio, p.existencia, p.imagen, p.imagen2, p.destacado],
+    )
+    nuevos++
+  }
 }
 await pool.end()
 console.log(`Listo: ${nuevos} nuevos, ${productos.length - nuevos} actualizados, ${cats.size} categorías.`)

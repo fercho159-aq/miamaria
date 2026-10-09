@@ -35,7 +35,7 @@ export default async function PedidoPage({ params }: PageProps<'/admin/pedidos/[
             <h2 className="border-b border-neutral-100 px-5 py-3 text-sm font-medium">Productos</h2>
             <ul className="divide-y divide-neutral-100">
               {p.items.map((i) => (
-                <li key={i.sku} className="flex items-center gap-4 px-5 py-3 text-sm">
+                <li key={i.id} className="flex items-center gap-4 px-5 py-3 text-sm">
                   <div className="relative h-14 w-12 shrink-0 overflow-hidden bg-tinta">
                     <FotoProducto src={i.imagenUrl} alt={i.nombre} sizes="48px" />
                   </div>

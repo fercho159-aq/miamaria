@@ -20,8 +20,8 @@ export async function generateMetadata({ params }: PageProps<'/producto/[sku]'>)
   return {
     title: p.categoria ? `${p.nombre} · ${p.categoria}` : p.nombre,
     description: descripcion.slice(0, 300),
-    alternates: { canonical: urlProducto(p.sku) },
-    openGraph: { title: p.nombre, description: descripcion.slice(0, 300), url: urlProducto(p.sku), images: [p.imagenUrl ?? '/images/og-miamaria.jpg'] },
+    alternates: { canonical: urlProducto(p.clave) },
+    openGraph: { title: p.nombre, description: descripcion.slice(0, 300), url: urlProducto(p.clave), images: [p.imagenUrl ?? '/images/og-miamaria.jpg'] },
   }
 }
 
@@ -39,7 +39,7 @@ export default async function ProductoPage({ params }: PageProps<'/producto/[sku
         data={migas([
           { nombre: 'Catálogo', ruta: '/catalogo' },
           ...(p.categoriaSlug ? [{ nombre: p.categoria!, ruta: urlColeccion(p.categoriaSlug) }] : []),
-          { nombre: p.nombre, ruta: urlProducto(p.sku) },
+          { nombre: p.nombre, ruta: urlProducto(p.clave) },
         ])}
       />
       <nav className="mb-8 text-xs text-neutral-500">
@@ -64,7 +64,7 @@ export default async function ProductoPage({ params }: PageProps<'/producto/[sku
               <div className="space-y-3">
                 {p.stock <= 0 && <p className="eyebrow text-neutral-500">Agotado por ahora</p>}
                 <EnlaceConsulta
-                  sku={p.sku}
+                  productoId={p.id}
                   href={urlWhatsApp(
                     `Hola Mía María, me interesa ${p.nombre} (${p.sku}). ¿Me compartes precio${p.stock <= 0 ? ' y cuándo vuelve a estar disponible' : ' y disponibilidad'}?`,
                   )}
@@ -75,12 +75,12 @@ export default async function ProductoPage({ params }: PageProps<'/producto/[sku
                 <p className="text-xs text-neutral-500">Te respondemos con precio, fotos de la pieza y opciones de entrega.</p>
               </div>
             ) : (
-              <BotonAgregar producto={{ sku: p.sku, nombre: p.nombre, precio: p.precio, imagenUrl: p.imagenUrl, stock: p.stock }} />
+              <BotonAgregar producto={{ id: p.id, sku: p.sku, nombre: p.nombre, precio: p.precio, imagenUrl: p.imagenUrl, stock: p.stock }} />
             )}
           </div>
           {p.precio != null && (
             <EnlaceConsulta
-              sku={p.sku}
+              productoId={p.id}
               href={urlWhatsApp(`Hola Mía María, me interesa la pieza ${p.nombre} (${p.sku}).`)}
               className="eyebrow mt-4 inline-flex items-center gap-2 text-neutral-600 hover:text-tinta"
             >
