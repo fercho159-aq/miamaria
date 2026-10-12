@@ -8,7 +8,7 @@ import { slugCategoria } from '@/lib/categorias'
 import { slugify } from '@/lib/format'
 
 export type ImportResult =
-  | { ok: true; creados: number; actualizados: number; categoriasNuevas: string[]; omitidos: string[] }
+  | { ok: true; creados: number; actualizados: number; grupos: number; categoriasNuevas: string[]; omitidos: string[] }
   | { ok: false; error: string }
   | undefined
 
@@ -19,7 +19,7 @@ const COLUMNAS: Record<string, string[]> = {
   descripcion: ['descripcion', 'descripción', 'detalle'],
   categoria: ['categoria', 'categoría', 'tipo', 'linea', 'línea'],
   precio: ['precio', 'precio venta', 'precio de venta', 'pvp', 'precio publico', 'precio público'],
-  stock: ['stock', 'existencia', 'existencias', 'inventario', 'cantidad', 'piezas'],
+  stock: ['stock', 'existencia', 'existencias', 'exis', 'exist', 'inventario', 'cantidad', 'piezas'],
 }
 
 const norm = (s: unknown) => slugify(String(s ?? '')).replace(/-/g, ' ')
@@ -65,6 +65,12 @@ export async function importarExcel(_: ImportResult, form: FormData): Promise<Im
     for (const [campo, alias] of Object.entries(COLUMNAS)) {
       if (!mapa[campo] && alias.map(norm).includes(n)) mapa[campo] = h
     }
+  }
+  // Reporte de SICAR (Clave, Descripción, Exis): ahí "Descripción" es el nombre de la pieza.
+  const descripcionEsNombre = !mapa.nombre && !!mapa.descripcion
+  if (descripcionEsNombre) {
+    mapa.nombre = mapa.descripcion
+    delete mapa.descripcion
   }
   const faltan = ['sku', 'nombre'].filter((c) => !mapa[c])
   if (faltan.length) {
@@ -112,14 +118,33 @@ export async function importarExcel(_: ImportResult, form: FormData): Promise<Im
   const vecesEnArchivo = new Map<string, number>()
   for (const fila of filas) vecesEnArchivo.set(skuDe(fila), (vecesEnArchivo.get(skuDe(fila)) ?? 0) + 1)
 
+  // Subcategorías SICAR por clave: su fila del reporte actualiza la existencia del grupo.
+  const grupos = await sql`SELECT id, upper(sku) AS sku FROM categorias WHERE sku IS NOT NULL AND existencia IS NOT NULL`
+  const grupoPorSku = new Map(grupos.map((g) => [g.sku as string, g.id as number]))
+
   const omitidos: string[] = []
   let creados = 0
   let actualizados = 0
+  let gruposActualizados = 0
 
   for (const [n, fila] of filas.entries()) {
     const linea = n + 2
     const sku = skuDe(fila)
     const nombre = String(fila[mapa.nombre] ?? '').trim()
+
+    const grupoId = grupoPorSku.get(sku)
+    if (grupoId) {
+      const crudo = mapa.stock ? fila[mapa.stock] : ''
+      const exis = crudo === '' || crudo == null ? null : Math.trunc(Number(crudo))
+      if (exis === null || !Number.isFinite(exis)) {
+        omitidos.push(`Fila ${linea} (${sku}): existencia no válida`)
+        continue
+      }
+      await sql`UPDATE categorias SET existencia = ${exis} WHERE id = ${grupoId}`
+      gruposActualizados++
+      continue
+    }
+
     // Precio vacío o sin columna = "a consultar" (al actualizar se conserva el que ya tenía)
     const precioCrudo = mapa.precio ? fila[mapa.precio] : ''
     const precio = precioCrudo === '' || precioCrudo == null ? null : precioDe(precioCrudo)
@@ -168,5 +193,5 @@ export async function importarExcel(_: ImportResult, form: FormData): Promise<Im
   }
 
   revalidatePath('/', 'layout')
-  return { ok: true, creados, actualizados, categoriasNuevas, omitidos }
+  return { ok: true, creados, actualizados, grupos: gruposActualizados, categoriasNuevas, omitidos }
 }

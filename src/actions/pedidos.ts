@@ -51,16 +51,26 @@ export async function crearPedido(input: PedidoInput): Promise<CrearPedidoResult
   for (const i of d.items) cantidades.set(i.id, (cantidades.get(i.id) ?? 0) + i.cantidad)
   const ids = [...cantidades.keys()]
 
+  // stock = existencia efectiva: la del grupo SICAR si el producto pertenece a uno.
   const productos = await sql`
-    SELECT id, sku, nombre, precio, stock FROM productos WHERE activo AND precio IS NOT NULL AND id = ANY(${ids}::int[])
+    SELECT id, sku, nombre, precio, stock, grupo_id FROM productos_catalogo
+    WHERE activo AND precio IS NOT NULL AND id = ANY(${ids}::int[])
   `
   const porId = new Map(productos.map((p) => [p.id as number, p]))
 
+  // Los modelos de un mismo grupo comparten existencia: se valida por "bolsa" (grupo o producto).
   const ajustes: { id: number; disponible: number }[] = []
+  const restante = new Map<string, number>()
   for (const [id, cant] of cantidades) {
     const p = porId.get(id)
-    const disponible = p ? Number(p.stock) : 0
-    if (disponible < cant) ajustes.push({ id, disponible })
+    if (!p) {
+      ajustes.push({ id, disponible: 0 })
+      continue
+    }
+    const bolsa = p.grupo_id != null ? `g${p.grupo_id}` : `p${id}`
+    const quedan = restante.get(bolsa) ?? Math.max(0, Number(p.stock))
+    if (quedan < cant) ajustes.push({ id, disponible: quedan })
+    restante.set(bolsa, Math.max(0, quedan - cant))
   }
   if (ajustes.length) {
     return {
@@ -132,27 +142,32 @@ export async function cambiarEstatus(pedidoId: number, estatus: EstatusPedido) {
   if (previo.estatus === estatus) return { ok: true }
   const descuenta = estatusConStock.includes(estatus)
 
-  if (descuenta) {
-    // Una sola sentencia: marca y descuenta, solo si aún no se había descontado.
-    await sql`
-      WITH marcado AS (
-        UPDATE pedidos SET stock_descontado = TRUE WHERE id = ${pedidoId} AND NOT stock_descontado RETURNING id
-      )
-      UPDATE productos p SET stock = p.stock - i.cantidad, updated_at = NOW()
-      FROM pedido_items i, marcado m
-      WHERE i.pedido_id = m.id AND i.producto_id = p.id
-    `
-  } else {
-    // pendiente o cancelado: si ya se había descontado, regresa las piezas.
-    await sql`
-      WITH marcado AS (
-        UPDATE pedidos SET stock_descontado = FALSE WHERE id = ${pedidoId} AND stock_descontado RETURNING id
-      )
-      UPDATE productos p SET stock = p.stock + i.cantidad, updated_at = NOW()
-      FROM pedido_items i, marcado m
-      WHERE i.pedido_id = m.id AND i.producto_id = p.id
-    `
-  }
+  // Una sola sentencia: marca el pedido y mueve la existencia, solo una vez. Los productos de
+  // un grupo SICAR mueven la existencia del grupo; los demás, la suya propia.
+  const signo = descuenta ? -1 : 1
+  await sql`
+    WITH marcado AS (
+      UPDATE pedidos SET stock_descontado = ${descuenta}
+      WHERE id = ${pedidoId} AND stock_descontado = ${!descuenta}
+      RETURNING id
+    ),
+    movs AS (
+      SELECT i.producto_id, i.cantidad * ${signo}::int AS delta, g.id AS grupo_id
+      FROM pedido_items i
+      JOIN marcado m ON i.pedido_id = m.id
+      LEFT JOIN productos p ON p.id = i.producto_id
+      LEFT JOIN categorias g ON g.id = p.categoria_id AND g.existencia IS NOT NULL
+    ),
+    propios AS (
+      UPDATE productos p SET stock = p.stock + x.delta, updated_at = NOW()
+      FROM (SELECT producto_id, SUM(delta) AS delta FROM movs WHERE grupo_id IS NULL GROUP BY producto_id) x
+      WHERE p.id = x.producto_id
+      RETURNING p.id
+    )
+    UPDATE categorias g SET existencia = g.existencia + x.delta
+    FROM (SELECT grupo_id, SUM(delta) AS delta FROM movs WHERE grupo_id IS NOT NULL GROUP BY grupo_id) x
+    WHERE g.id = x.grupo_id
+  `
   await sql`UPDATE pedidos SET estatus = ${estatus}, updated_at = NOW() WHERE id = ${pedidoId}`
   const etiqueta = (e: string) => estatusPedido[e as EstatusPedido]?.label ?? e
   await registrarEvento(pedidoId, admin, `Estatus: ${etiqueta(previo.estatus)} → ${etiqueta(estatus)}`)

@@ -1,8 +1,9 @@
 'use client'
 
+import Link from 'next/link'
 import { useActionState, useState, useTransition } from 'react'
-import { ArrowDown, ArrowUp, Check, CornerDownRight, Pencil, Trash2, X } from 'lucide-react'
-import { crearCategoria, editarCategoria, eliminarCategoria, moverCategoria } from '@/actions/productos'
+import { ArrowDown, ArrowUp, Check, CornerDownRight, Pencil, Plus, Trash2, X } from 'lucide-react'
+import { crearCategoria, editarCategoria, eliminarCategoria, guardarGrupo, moverCategoria } from '@/actions/productos'
 import type { Categoria } from '@/lib/data'
 
 type Opcion = { id: number; ruta: string }
@@ -49,6 +50,8 @@ export function FilaCategoria({
   const [editando, setEditando] = useState(false)
   const [nombre, setNombre] = useState(c.nombre)
   const [madre, setMadre] = useState(c.parentId ? String(c.parentId) : '')
+  const [clave, setClave] = useState(c.sku ?? '')
+  const [existencia, setExistencia] = useState(c.existencia == null ? '' : String(c.existencia))
   const [error, setError] = useState<string | null>(null)
   const [pending, start] = useTransition()
 
@@ -57,6 +60,8 @@ export function FilaCategoria({
     setEditando(false)
     setNombre(c.nombre)
     setMadre(c.parentId ? String(c.parentId) : '')
+    setClave(c.sku ?? '')
+    setExistencia(c.existencia == null ? '' : String(c.existencia))
     setError(null)
   }
 
@@ -74,6 +79,23 @@ export function FilaCategoria({
               </option>
             ))}
           </select>
+          <input
+            value={clave}
+            onChange={(e) => setClave(e.target.value.toUpperCase())}
+            placeholder="Clave SICAR"
+            aria-label="Clave SICAR"
+            className="campo !w-28 !py-1.5 uppercase"
+          />
+          <input
+            value={existencia}
+            onChange={(e) => setExistencia(e.target.value)}
+            type="number"
+            step={1}
+            placeholder="Existencia"
+            aria-label="Existencia del grupo"
+            disabled={!clave}
+            className="campo !w-24 !py-1.5 disabled:opacity-40"
+          />
           <button
             type="button"
             className={boton}
@@ -81,11 +103,11 @@ export function FilaCategoria({
             onClick={() =>
               start(async () => {
                 const r = await editarCategoria(c.id, nombre, madre ? Number(madre) : null)
-                if (r?.error) setError(r.error)
-                else {
-                  setError(null)
-                  setEditando(false)
-                }
+                if (r?.error) return setError(r.error)
+                const g = await guardarGrupo(c.id, clave, existencia === '' ? null : Number(existencia))
+                if (g?.error) return setError(g.error)
+                setError(null)
+                setEditando(false)
               })
             }
           >
@@ -99,7 +121,17 @@ export function FilaCategoria({
         <>
           <span className="min-w-0 flex-1">
             {c.nombre} <span className="text-xs text-neutral-400">· {c.productos} producto{c.productos === 1 ? '' : 's'}</span>
+            {c.sku && (
+              <span className="ml-2 inline-block rounded-full bg-marfil px-2 py-0.5 text-xs text-neutral-600" title="Existencia compartida por todos sus modelos">
+                {c.sku} · {c.existencia} pza{c.existencia === 1 ? '' : 's'}
+              </span>
+            )}
           </span>
+          {c.sku && (
+            <Link href={`/admin/productos/nuevo?categoria=${c.id}`} className={boton} aria-label={`Agregar modelo a ${c.nombre}`} title="Agregar modelo">
+              <Plus size={16} />
+            </Link>
+          )}
           <button type="button" className={boton} aria-label="Subir" disabled={primera} onClick={() => start(() => moverCategoria(c.id, -1))}>
             <ArrowUp size={16} />
           </button>

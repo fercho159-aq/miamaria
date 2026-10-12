@@ -16,6 +16,10 @@ export interface Categoria {
   productos?: number
   /** Foto de un producto de la rama (destacado primero), para menús y portadas. */
   imagen?: string | null
+  /** Clave de SICAR del grupo (ej. MMA003). Sus modelos la usan como SKU. */
+  sku: string | null
+  /** Existencia del grupo, compartida por todos sus modelos. null = la categoría no es grupo. */
+  existencia: number | null
 }
 
 export interface Producto {
@@ -39,6 +43,13 @@ export interface Producto {
   imagen2Url: string | null
   activo: boolean
   destacado: boolean
+  /** Tarjeta provisional de la subcategoría (se oculta sola al subir modelos reales). */
+  generico: boolean
+  /** Código con el que se subió el modelo (ej. MMA001.3); el SKU es la clave del grupo. */
+  codigoModelo: string | null
+  /** Subcategoría SICAR cuya existencia comparte; null = existencia propia. */
+  grupoId: number | null
+  grupo: string | null
 }
 
 const claveProducto = (r: Row) => (r.principal === false ? `${r.sku}~${r.id}` : (r.sku as string))
@@ -58,15 +69,19 @@ const toProducto = (r: Row): Producto => ({
   imagen2Url: r.imagen2_url ?? null,
   activo: r.activo,
   destacado: r.destacado,
+  generico: r.generico ?? false,
+  codigoModelo: r.codigo_modelo ?? null,
+  grupoId: r.grupo_id ?? null,
+  grupo: r.grupo ?? null,
 })
 
 export async function getCategorias(): Promise<Categoria[]> {
   const sql = getDb()
   const rows = await sql`
-    SELECT c.id, c.nombre, c.slug, c.orden, c.parent_id,
-           (SELECT COUNT(*) FROM productos p WHERE p.categoria_id = c.id AND p.activo) AS productos,
-           (SELECT p.imagen_url FROM productos p
-             WHERE p.categoria_id = c.id AND p.activo AND p.imagen_url IS NOT NULL
+    SELECT c.id, c.nombre, c.slug, c.orden, c.parent_id, c.sku, c.existencia,
+           (SELECT COUNT(*) FROM productos_catalogo p WHERE p.categoria_id = c.id AND p.en_tienda) AS productos,
+           (SELECT p.imagen_url FROM productos_catalogo p
+             WHERE p.categoria_id = c.id AND p.en_tienda AND p.imagen_url IS NOT NULL
              ORDER BY p.destacado DESC, p.created_at DESC LIMIT 1) AS imagen
     FROM categorias c ORDER BY c.orden, c.nombre
   `
@@ -91,6 +106,8 @@ export async function getCategorias(): Promise<Categoria[]> {
       ruta: rutaMadre ? `${rutaMadre} › ${r.nombre}` : r.nombre,
       productos: Number(r.productos),
       imagen: r.imagen ?? null,
+      sku: r.sku ?? null,
+      existencia: r.existencia == null ? null : Number(r.existencia),
     }
     lista.push(c)
     for (const h of hijas.get(r.id) ?? []) {
@@ -118,9 +135,9 @@ export async function getProductos(opts: { categoria?: string; q?: string; desta
       SELECT c.id FROM categorias c JOIN rama r ON c.parent_id = r.id
     )
     SELECT p.*, c.nombre AS categoria, c.slug AS categoria_slug,
-           NOT EXISTS (SELECT 1 FROM productos x WHERE x.sku = p.sku AND x.id < p.id) AS principal
-    FROM productos p LEFT JOIN categorias c ON c.id = p.categoria_id
-    WHERE p.activo
+           NOT EXISTS (SELECT 1 FROM productos_catalogo x WHERE x.sku = p.sku AND x.en_tienda AND x.id < p.id) AS principal
+    FROM productos_catalogo p LEFT JOIN categorias c ON c.id = p.categoria_id
+    WHERE p.en_tienda
       AND (${opts.categoria ?? null}::text IS NULL OR p.categoria_id IN (SELECT id FROM rama))
       AND (${q}::text IS NULL OR p.nombre ILIKE ${q} OR p.sku ILIKE ${q} OR p.descripcion ILIKE ${q})
       AND (${opts.destacados ?? false} = FALSE OR p.destacado)
@@ -137,9 +154,9 @@ export async function getProducto(clave: string) {
   const id = conId ? Number(conId[2]) : null
   const rows = await sql`
     SELECT p.*, c.nombre AS categoria, c.slug AS categoria_slug,
-           NOT EXISTS (SELECT 1 FROM productos x WHERE x.sku = p.sku AND x.id < p.id) AS principal
-    FROM productos p LEFT JOIN categorias c ON c.id = p.categoria_id
-    WHERE p.sku = ${sku} AND p.activo AND (${id}::int IS NULL OR p.id = ${id})
+           NOT EXISTS (SELECT 1 FROM productos_catalogo x WHERE x.sku = p.sku AND x.en_tienda AND x.id < p.id) AS principal
+    FROM productos_catalogo p LEFT JOIN categorias c ON c.id = p.categoria_id
+    WHERE p.sku = ${sku} AND p.en_tienda AND (${id}::int IS NULL OR p.id = ${id})
     ORDER BY p.id LIMIT 1
   `
   return rows[0] ? toProducto(rows[0]) : null
@@ -151,9 +168,9 @@ export async function getProductosAdmin(q?: string) {
   const like = q?.trim() ? `%${q.trim()}%` : null
   const rows = await sql`
     SELECT p.*, c.nombre AS categoria, c.slug AS categoria_slug,
-           NOT EXISTS (SELECT 1 FROM productos x WHERE x.sku = p.sku AND x.id < p.id) AS principal
-    FROM productos p LEFT JOIN categorias c ON c.id = p.categoria_id
-    WHERE (${like}::text IS NULL OR p.nombre ILIKE ${like} OR p.sku ILIKE ${like})
+           NOT EXISTS (SELECT 1 FROM productos_catalogo x WHERE x.sku = p.sku AND x.en_tienda AND x.id < p.id) AS principal
+    FROM productos_catalogo p LEFT JOIN categorias c ON c.id = p.categoria_id
+    WHERE (${like}::text IS NULL OR p.nombre ILIKE ${like} OR p.sku ILIKE ${like} OR p.codigo_modelo ILIKE ${like})
     ORDER BY p.created_at DESC, p.id DESC
   `
   return rows.map(toProducto)
@@ -163,8 +180,8 @@ export async function getProductoAdmin(id: number) {
   const sql = getDb()
   const rows = await sql`
     SELECT p.*, c.nombre AS categoria, c.slug AS categoria_slug,
-           NOT EXISTS (SELECT 1 FROM productos x WHERE x.sku = p.sku AND x.id < p.id) AS principal
-    FROM productos p LEFT JOIN categorias c ON c.id = p.categoria_id
+           NOT EXISTS (SELECT 1 FROM productos_catalogo x WHERE x.sku = p.sku AND x.en_tienda AND x.id < p.id) AS principal
+    FROM productos_catalogo p LEFT JOIN categorias c ON c.id = p.categoria_id
     WHERE p.id = ${id} LIMIT 1
   `
   return rows[0] ? toProducto(rows[0]) : null
@@ -218,7 +235,7 @@ export async function getPedido(id: number) {
   if (!p) return null
   const items = await sql`
     SELECT i.*, pr.stock AS stock_actual, pr.imagen_url
-    FROM pedido_items i LEFT JOIN productos pr ON pr.id = i.producto_id
+    FROM pedido_items i LEFT JOIN productos_catalogo pr ON pr.id = i.producto_id
     WHERE i.pedido_id = ${id} ORDER BY i.id
   `
   const eventos = await sql`
@@ -313,8 +330,10 @@ export async function getResumen() {
          AND created_at >= date_trunc('month', NOW())) AS vendidos_mes,
       (SELECT COALESCE(SUM(total), 0) FROM pedidos WHERE estatus IN ('pagado','enviado','entregado')
          AND created_at >= date_trunc('month', NOW())) AS ventas_mes,
-      (SELECT COUNT(*) FROM productos WHERE activo) AS productos,
-      (SELECT COUNT(*) FROM productos WHERE activo AND stock <= 2) AS stock_bajo
+      (SELECT COUNT(*) FROM productos_catalogo WHERE en_tienda) AS productos,
+      -- existencia baja: cada grupo SICAR cuenta una vez, más los productos con existencia propia
+      (SELECT COUNT(*) FROM categorias WHERE existencia IS NOT NULL AND existencia <= 2)
+        + (SELECT COUNT(*) FROM productos_catalogo WHERE activo AND grupo_id IS NULL AND stock <= 2) AS stock_bajo
   `
   return {
     pendientes: Number(r.pendientes),
@@ -330,8 +349,8 @@ export async function getUrlsSitemap() {
   const sql = getDb()
   const productos = await sql`
     SELECT p.id, p.sku, p.updated_at, p.imagen_url, p.imagen2_url,
-           NOT EXISTS (SELECT 1 FROM productos x WHERE x.sku = p.sku AND x.id < p.id) AS principal
-    FROM productos p WHERE p.activo ORDER BY p.updated_at DESC
+           NOT EXISTS (SELECT 1 FROM productos_catalogo x WHERE x.sku = p.sku AND x.en_tienda AND x.id < p.id) AS principal
+    FROM productos_catalogo p WHERE p.en_tienda ORDER BY p.updated_at DESC
   `
   const colecciones = await sql`
     WITH RECURSIVE rama AS (
@@ -340,7 +359,7 @@ export async function getUrlsSitemap() {
       SELECT r.raiz, c.id FROM categorias c JOIN rama r ON c.parent_id = r.id
     )
     SELECT c.slug, MAX(p.updated_at) AS updated_at
-    FROM categorias c JOIN rama r ON r.raiz = c.id JOIN productos p ON p.categoria_id = r.id AND p.activo
+    FROM categorias c JOIN rama r ON r.raiz = c.id JOIN productos_catalogo p ON p.categoria_id = r.id AND p.en_tienda
     GROUP BY c.slug
   `
   return {

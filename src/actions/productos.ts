@@ -11,7 +11,8 @@ import { existeHermana, slugCategoria } from '@/lib/categorias'
 export type FormState = { error?: string; ok?: string } | undefined
 
 const productoSchema = z.object({
-  sku: z.string().trim().min(1, 'El SKU es obligatorio').max(60).transform((s) => s.toUpperCase()),
+  // Vacío = toma la clave de su subcategoría SICAR (si la tiene)
+  sku: z.string().trim().max(60).transform((s) => s.toUpperCase()),
   nombre: z.string().trim().min(2, 'El nombre es obligatorio').max(160),
   descripcion: z.string().trim().max(2000).default(''),
   categoriaId: z.coerce.number().int().positive().nullable(),
@@ -24,7 +25,8 @@ const productoSchema = z.object({
 
 function leer(form: FormData) {
   return productoSchema.safeParse({
-    sku: form.get('sku'),
+    // En un modelo de grupo el campo no se envía: el SKU sale de la subcategoría
+    sku: form.get('sku') ?? '',
     nombre: form.get('nombre'),
     descripcion: form.get('descripcion') ?? '',
     categoriaId: form.get('categoriaId') ? form.get('categoriaId') : null,
@@ -46,6 +48,17 @@ export async function guardarProducto(_: FormState, form: FormData): Promise<For
   const d = parsed.data
   const id = form.get('id') ? Number(form.get('id')) : null
   const sql = getDb()
+
+  // Modelo de un grupo SICAR: el SKU es la clave del grupo y la existencia es la del grupo.
+  const [grupo] = d.categoriaId
+    ? await sql`SELECT sku, existencia FROM categorias WHERE id = ${d.categoriaId} AND existencia IS NOT NULL`
+    : []
+  if (grupo?.sku) d.sku = String(grupo.sku).toUpperCase()
+  if (!d.sku) return { error: 'El SKU es obligatorio' }
+  if (grupo) {
+    const [previo] = id ? await sql`SELECT stock FROM productos WHERE id = ${id}` : []
+    d.stock = previo ? Number(previo.stock) : 0
+  }
 
   // undefined = no cambia, null = se quita, texto = foto nueva
   const leerFoto = async (campo: string, quitar: string) => {
@@ -98,12 +111,37 @@ export async function eliminarProducto(id: number) {
   redirect('/admin/productos')
 }
 
+/** Cambia la existencia desde la lista. Si el producto es de un grupo SICAR, cambia la del grupo. */
 export async function ajustarStockRapido(id: number, stock: number) {
   await requireAdmin()
   if (!Number.isInteger(stock)) return
   const sql = getDb()
-  await sql`UPDATE productos SET stock = ${stock}, updated_at = NOW() WHERE id = ${id}`
+  const [g] = await sql`
+    SELECT c.id FROM productos p JOIN categorias c ON c.id = p.categoria_id AND c.existencia IS NOT NULL WHERE p.id = ${id}
+  `
+  if (g) await sql`UPDATE categorias SET existencia = ${stock} WHERE id = ${g.id}`
+  else await sql`UPDATE productos SET stock = ${stock}, updated_at = NOW() WHERE id = ${id}`
   revalidar()
+}
+
+/**
+ * Clave SICAR y existencia de una subcategoría. Con clave, la subcategoría es un "grupo": sus
+ * modelos usan esa clave como SKU y comparten la existencia. Clave vacía = deja de ser grupo.
+ */
+export async function guardarGrupo(id: number, sku: string, existencia: number | null) {
+  await requireAdmin()
+  const clave = sku.trim().toUpperCase().slice(0, 60) || null
+  if (clave && (existencia == null || !Number.isInteger(existencia))) return { error: 'Escribe la existencia (número entero)' }
+  const sql = getDb()
+  if (clave) {
+    const [otra] = await sql`SELECT nombre FROM categorias WHERE upper(sku) = ${clave} AND id <> ${id}`
+    if (otra) return { error: `La clave ${clave} ya es de “${otra.nombre}”` }
+  }
+  await sql`UPDATE categorias SET sku = ${clave}, existencia = ${clave ? existencia : null} WHERE id = ${id}`
+  // Los modelos del grupo llevan su clave como SKU.
+  if (clave) await sql`UPDATE productos SET sku = ${clave}, updated_at = NOW() WHERE categoria_id = ${id} AND sku <> ${clave}`
+  revalidar()
+  return { ok: true }
 }
 
 // ---------- Categorías ----------

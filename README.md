@@ -35,6 +35,11 @@ Panel demo: `/admin` — `admin@miamaria.com.mx` / `MiaMaria2026` (solo base loc
   `/producto/SKU`; los demás usan `/producto/SKU~id`. Carrito y pedidos identifican por id.
 - **Subcategorías:** una categoría puede vivir dentro de otra, a cualquier profundidad. El menú
   muestra las principales; cada colección incluye los productos de sus subcategorías.
+- **Grupos SICAR:** cada clave del reporte de existencias (ej. `MMA003` Anillo Chico) es una
+  subcategoría con su existencia. Sus modelos llevan esa clave como SKU (el código con que se subió
+  cada modelo queda en "modelo", ej. `MMA001.3`) y **comparten** la existencia: vender cualquier modelo
+  descuenta del total del grupo. Mientras un grupo no tiene modelos reales se muestra una tarjeta
+  genérica. Scripts: `scripts/reestructurar-grupos.mjs` y `scripts/asignar-modelos.mjs` (con `DB_MODE=local` para la base local).
 - **Importar Excel** (`/admin/importar`): columnas SKU, Nombre, Descripción, Categoría, Precio y,
   opcional, Existencia. Actualiza por SKU (si el SKU se repite, por SKU + nombre) y crea las categorías que falten;
   una subcategoría se escribe `Collares > Plata`. Hay plantilla descargable.

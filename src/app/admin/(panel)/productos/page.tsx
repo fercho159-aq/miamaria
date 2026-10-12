@@ -59,16 +59,21 @@ export default async function ProductosPage({ searchParams }: PageProps<'/admin/
                     <Link href={`/admin/productos/${p.id}`} className="font-medium hover:text-oro-oscuro">
                       {p.nombre}
                     </Link>
-                    <span className="block text-xs text-neutral-400">{p.sku}</span>
+                    <span className="block text-xs text-neutral-400">
+                      {p.sku}
+                      {p.codigoModelo && p.codigoModelo !== p.sku && <> · modelo {p.codigoModelo}</>}
+                    </span>
                   </td>
                   <td className="px-4 py-2 text-neutral-600">{p.categoria ?? '—'}</td>
                   <td className="px-4 py-2 text-right whitespace-nowrap">{p.precio == null ? <span className="text-neutral-400">A consultar</span> : precioCatalogo(p.precio)}</td>
                   <td className="px-4 py-2">
                     <StockRapido id={p.id} stock={p.stock} />
+                    {p.grupoId && <span className="mt-0.5 block text-[0.65rem] text-neutral-400">Compartida · {p.grupo}</span>}
                   </td>
                   <td className="px-4 py-2 text-xs whitespace-nowrap">
                     {p.activo ? <span className="text-emerald-700">Visible</span> : <span className="text-neutral-400">Oculto</span>}
                     {p.destacado && <span className="ml-2 text-oro-oscuro">★ Destacado</span>}
+                    {p.generico && <span className="ml-2 text-neutral-400" title="Tarjeta provisional: se oculta al subir el primer modelo real">Genérica</span>}
                   </td>
                 </tr>
               ))}

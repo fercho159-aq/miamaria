@@ -27,6 +27,10 @@ export default function ImportarPage() {
             <b>Existencia</b> (o Stock / Cantidad) — opcional. Si no viene, se conserva la existencia actual.
           </li>
         </ul>
+        <p>
+          <b>Reporte de existencias de SICAR</b> (Clave, Descripción, Exis): exportado a Excel, se sube tal cual. Cada clave que
+          corresponde a una subcategoría actualiza su existencia compartida.
+        </p>
         <p>Las fotos se agregan después desde cada producto.</p>
         <a href="/admin/importar/plantilla" className="btn-linea mt-2 !px-4 !py-2.5">
           <Download size={15} /> Descargar plantilla

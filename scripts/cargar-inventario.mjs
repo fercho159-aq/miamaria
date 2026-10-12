@@ -1,9 +1,8 @@
 // Carga (o actualiza por SKU + nombre) un inventario en JSON a la base de producción.
 //   npm run inventario:cargar -- db/datos/inventario-2026-10-05.json
 // No toca el precio de productos que ya lo tengan si el archivo trae precio null.
-import './env.mjs'
 import fs from 'node:fs'
-import { Pool } from '@neondatabase/serverless'
+import { conectar } from './db-cli.mjs'
 
 const archivo = process.argv[2]
 if (!archivo) {
@@ -14,7 +13,7 @@ const { productos } = JSON.parse(fs.readFileSync(archivo, 'utf8'))
 const slug = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 const orden = ['Collares', 'Aretes', 'Anillos', 'Pulseras', 'Prendedores']
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+const pool = await conectar()
 const cats = new Map()
 for (const nombre of [...new Set(productos.map((p) => p.categoria))]) {
   const { rows } = await pool.query(
@@ -46,5 +45,5 @@ for (const p of productos) {
     nuevos++
   }
 }
-await pool.end()
+await pool.cerrar()
 console.log(`Listo: ${nuevos} nuevos, ${productos.length - nuevos} actualizados, ${cats.size} categorías.`)

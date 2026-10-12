@@ -29,6 +29,11 @@ export function FormImportar() {
             <b>Listo.</b> {state.creados} producto{state.creados === 1 ? '' : 's'} nuevo{state.creados === 1 ? '' : 's'} y{' '}
             {state.actualizados} actualizado{state.actualizados === 1 ? '' : 's'}.
           </p>
+          {state.grupos > 0 && (
+            <p>
+              Existencia actualizada en {state.grupos} subcategoría{state.grupos === 1 ? '' : 's'} SICAR (por clave).
+            </p>
+          )}
           {state.categoriasNuevas.length > 0 && <p>Categorías nuevas: {state.categoriasNuevas.join(', ')}.</p>}
           {state.omitidos.length > 0 && (
             <div className="text-amber-900">

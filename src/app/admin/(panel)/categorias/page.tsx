@@ -14,6 +14,10 @@ export default async function CategoriasPage() {
         Una categoría puede ir dentro de otra (por ejemplo Collares › Plata). El menú de la tienda muestra las principales, en este
         orden; las subcategorías aparecen dentro de su colección. Las que no tienen productos visibles no se muestran.
       </p>
+      <p className="text-sm text-neutral-500">
+        Una subcategoría con <b>clave SICAR</b> (ej. MMA003 · Anillo Chico) es un grupo: todos sus modelos llevan esa clave como SKU y
+        comparten la existencia del reporte. Vender cualquier modelo descuenta de ese total.
+      </p>
       <NuevaCategoria opciones={opciones} />
       <ul className="divide-y divide-neutral-100 bg-white">
         {categorias.map((c, i) => {

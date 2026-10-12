@@ -30,9 +30,22 @@ async function reducirFoto(file: File): Promise<File> {
   return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' })
 }
 
-export function FormProducto({ producto, categorias, creado }: { producto?: Producto; categorias: Categoria[]; creado?: boolean }) {
+export function FormProducto({
+  producto,
+  categorias,
+  creado,
+  categoriaInicial,
+}: {
+  producto?: Producto
+  categorias: Categoria[]
+  creado?: boolean
+  categoriaInicial?: number
+}) {
   const [state, action, pending] = useActionState(guardarProducto, creado ? { ok: 'Producto creado' } : undefined)
   const [errorFotos, setErrorFotos] = useState<string | null>(null)
+  const [categoriaId, setCategoriaId] = useState(String(producto?.categoriaId ?? categoriaInicial ?? ''))
+  // Subcategoría SICAR: el modelo usa su clave como SKU y comparte su existencia.
+  const grupo = categorias.find((c) => String(c.id) === categoriaId && c.existencia != null)
 
   return (
     <form
@@ -51,8 +64,12 @@ export function FormProducto({ producto, categorias, creado }: { producto?: Prod
       <div className="space-y-5 bg-white p-6">
         <div className="grid gap-5 sm:grid-cols-[180px_1fr]">
           <label>
-            <span className="mb-1.5 block text-sm">SKU *</span>
-            <input name="sku" required defaultValue={producto?.sku} className="campo uppercase" />
+            <span className="mb-1.5 block text-sm">SKU {grupo ? '' : '*'}</span>
+            {grupo ? (
+              <input value={grupo.sku ?? ''} readOnly title="La clave de su subcategoría" className="campo bg-marfil uppercase" />
+            ) : (
+              <input name="sku" required defaultValue={producto?.sku} className="campo uppercase" />
+            )}
           </label>
           <label>
             <span className="mb-1.5 block text-sm">Nombre *</span>
@@ -66,11 +83,12 @@ export function FormProducto({ producto, categorias, creado }: { producto?: Prod
         <div className="grid gap-5 sm:grid-cols-3">
           <label>
             <span className="mb-1.5 block text-sm">Categoría</span>
-            <select name="categoriaId" defaultValue={producto?.categoriaId ?? ''} className="campo">
+            <select name="categoriaId" value={categoriaId} onChange={(e) => setCategoriaId(e.target.value)} className="campo">
               <option value="">Sin categoría</option>
               {categorias.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.ruta}
+                  {c.sku ? ` (${c.sku})` : ''}
                 </option>
               ))}
             </select>
@@ -80,10 +98,20 @@ export function FormProducto({ producto, categorias, creado }: { producto?: Prod
             <input name="precio" type="number" min={0} step="0.01" defaultValue={producto?.precio ?? ''} placeholder="Vacío = a consultar" className="campo" />
           </label>
           <label>
-            <span className="mb-1.5 block text-sm">Existencia *</span>
-            <input name="stock" required type="number" step={1} defaultValue={producto?.stock ?? 1} className="campo" />
+            <span className="mb-1.5 block text-sm">Existencia {grupo ? '' : '*'}</span>
+            {grupo ? (
+              <input value={grupo.existencia ?? 0} readOnly className="campo bg-marfil" />
+            ) : (
+              <input name="stock" required type="number" step={1} defaultValue={producto?.stock ?? 1} className="campo" />
+            )}
           </label>
         </div>
+        {grupo && (
+          <p className="bg-marfil px-4 py-3 text-xs leading-relaxed text-neutral-600">
+            Modelo de <b>{grupo.nombre}</b> ({grupo.sku}). Comparte las {grupo.existencia} piezas del grupo con los demás modelos;
+            la existencia se cambia en Categorías o volviendo a importar el reporte de SICAR.
+          </p>
+        )}
         <div className="flex flex-wrap gap-8 pt-2 text-sm">
           <label className="flex items-center gap-2">
             <input type="checkbox" name="activo" defaultChecked={producto?.activo ?? true} className="h-4 w-4 accent-tinta" />
