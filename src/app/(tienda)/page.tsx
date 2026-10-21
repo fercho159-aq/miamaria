@@ -19,9 +19,9 @@ export const metadata: Metadata = {
 
 const portada: DiapositivaPortada[] = [
   {
-    imagen: '/images/hero-modelo.webp',
-    alt: 'Modelo con collares en capas y dije de corazón Mía María',
-    posicion: '50% 22%',
+    imagen: '/images/collar-cubano.webp',
+    alt: 'Collar de eslabón cubano dorado Mía María',
+    posicion: '50% 40%',
     titulo: ['Ahora presentes en', 'Masaryk 295'],
     subtitulo: 'Conoce nuestros productos',
     cta: { href: '/catalogo', label: 'Ver catálogo' },
@@ -33,7 +33,7 @@ const portada: DiapositivaPortada[] = [
     posicion: '50% 45%',
     eyebrow: 'Colección de autor',
     titulo: ['Piezas que', 'se heredan'],
-    subtitulo: 'Nácar, oro y paciencia',
+    subtitulo: 'Estilo, diseño y arte',
     cta: { href: '/catalogo', label: 'Descubrir' },
   },
   {
@@ -60,7 +60,8 @@ const fotosCasa: ImagenGaleria[] = [
   { src: '/images/aretes-nacar.webp', alt: 'Aretes de nácar con hoja de oro' },
   { src: '/images/anillo-nudo-mano.webp', alt: 'Anillo de nudo dorado puesto' },
   { src: '/images/anillo-nudo.webp', alt: 'Anillo de nudo dorado con pavé' },
-  { src: '/images/hero-modelo.webp', alt: 'Modelo con collares Mía María' },
+  { src: '/images/collar-cubano.webp', alt: 'Collar de eslabón cubano dorado' },
+  { src: '/images/ear-cuff.webp', alt: 'Ear cuff dorado de eslabones con zirconias' },
   { src: '/images/brazalete-turquesa.webp', alt: 'Brazalete con turquesa' },
   { src: '/images/collar-corazon.webp', alt: 'Collar con dije de corazón pavé' },
 ]

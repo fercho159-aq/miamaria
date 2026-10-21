@@ -29,17 +29,13 @@ async function logo() {
     .toFile(out('logo-dorado.png'))
 }
 
-async function hero() {
-  await sharp(ref('WhatsApp Image 2026-10-02 at 9.31.30 AM.jpeg'))
-    .extract({ left: 0, top: 0, width: 800, height: 643 })
-    // La fuente es un recorte de 800 px de un banner por WhatsApp: se duplica con Lanczos,
-    // se limpia el ruido de compresión y se le da nitidez. Reemplazar por la foto original.
-    .resize({ width: 1600, kernel: 'lanczos3' })
-    .median(3)
-    .sharpen({ sigma: 1.1, m1: 0.6, m2: 2.2 })
-    .modulate({ saturation: 1.04 })
-    .webp({ quality: 92, smartSubsample: true })
-    .toFile(out('hero-modelo.webp'))
+// Fotos de producto en maniquí (iPhone, convertidas de HEIC a JPG) → 4:5, sin el aro de luz.
+async function collarCubano() {
+  await sharp(ref('IMG_6884.jpg')).extract({ left: 760, top: 1300, width: 3400, height: 4250 }).resize({ width: 1400 }).webp({ quality: 88 }).toFile(out('collar-cubano.webp'))
+}
+
+async function earCuff() {
+  await sharp(ref('IMG_5449.jpg')).extract({ left: 400, top: 420, width: 2320, height: 2900 }).resize({ width: 1100 }).webp({ quality: 88 }).toFile(out('ear-cuff.webp'))
 }
 
 async function producto() {
@@ -72,7 +68,7 @@ async function cuatroQuintos(origen, destino, top) {
 
 // Imagen para compartir en redes (1200x630): foto a la izquierda, logo sobre marfil.
 async function og() {
-  const foto = await sharp(out('hero-modelo.webp')).resize({ width: 600, height: 630, fit: 'cover', position: 'top' }).toBuffer()
+  const foto = await sharp(out('collar-cubano.webp')).resize({ width: 600, height: 630, fit: 'cover', position: 'centre' }).toBuffer()
   const marca = await sharp(out('logo-dorado.png')).resize({ height: 330 }).toBuffer()
   await sharp({ create: { width: 1200, height: 630, channels: 3, background: '#f7f5f1' } })
     .composite([
@@ -87,7 +83,8 @@ await Promise.all([
   logo(),
   cuatroQuintos('anillo-nudo.jpeg', 'anillo-nudo.webp', 70),
   cuatroQuintos('anillo-nudo-mano.jpeg', 'anillo-nudo-mano.webp', 60),
-  hero(),
+  collarCubano(),
+  earCuff(),
   producto(),
   vertical('aretes-nacar.jpeg', 'aretes-nacar.webp', 320),
   vertical('brazalete-turquesa.jpeg', 'brazalete-turquesa.webp', 350),

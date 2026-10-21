@@ -169,11 +169,11 @@ export function Encabezado({ categorias }: { categorias: CategoriaMenu[] }) {
 
             <Link href="/#visitanos" className="group relative col-span-3 block overflow-hidden bg-tinta">
               <Image
-                src="/images/hero-modelo.webp"
+                src="/images/collar-cubano.webp"
                 alt="Visita la tienda Mía María en Masaryk 295"
                 fill
                 sizes="22vw"
-                className="object-cover object-[50%_30%] opacity-80 transition duration-[1800ms] ease-out group-hover:scale-105 group-hover:opacity-90"
+                className="object-cover object-[50%_40%] opacity-80 transition duration-[1800ms] ease-out group-hover:scale-105 group-hover:opacity-90"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-6 text-white">
