@@ -234,7 +234,7 @@ export default async function Inicio() {
       {/* Visítanos */}
       <section id="visitanos" className="grid scroll-mt-28 bg-marfil md:grid-cols-2">
         <div className="relative aspect-[4/3] overflow-hidden md:aspect-auto md:min-h-[560px]">
-          <Image src="/images/bolsa-empaque.webp" alt="Bolsa de regalo negra con el logo dorado de Mía María" fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
+          <Image src="/images/anillo-nudo.webp" alt="Anillo de nudo dorado con pavé de Mía María" fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
         </div>
         <div className="flex flex-col justify-center px-8 py-16 sm:px-16">
           <p className="eyebrow text-oro-oscuro">Visítanos</p>
