@@ -22,7 +22,7 @@ const portada: DiapositivaPortada[] = [
     imagen: '/images/hero-modelo.webp',
     alt: 'Modelo con collares en capas y dije de corazón Mía María',
     posicion: '50% 22%',
-    titulo: ['Ahora presentes en', 'Masaryk 998'],
+    titulo: ['Ahora presentes en', 'Masaryk 295'],
     subtitulo: 'Conoce nuestros productos',
     cta: { href: '/catalogo', label: 'Ver catálogo' },
     cta2: { href: sitio.tienda.mapa, label: 'Cómo llegar', externo: true },

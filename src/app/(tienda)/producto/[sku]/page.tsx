@@ -16,7 +16,8 @@ import { datosProducto, migas, urlColeccion, urlProducto } from '@/lib/seo'
 export async function generateMetadata({ params }: PageProps<'/producto/[sku]'>): Promise<Metadata> {
   const p = await getProducto(decodeURIComponent((await params).sku))
   if (!p) return { title: 'Producto no encontrado' }
-  const descripcion = `${p.descripcion || `${p.nombre} de Mía María, joyería de autor.`} ${p.precio == null ? 'Precio a consultar por WhatsApp.' : `${precio(p.precio)} MXN.`} Recoge en Masaryk 998 o recibe en todo México.`
+  const base = p.descripcion?.trim().replace(/([^.!?])$/, '$1.') || `${p.nombre} de Mía María, joyería de autor.`
+  const descripcion = `${base} ${p.precio == null ? 'Precio a consultar por WhatsApp.' : `${precio(p.precio)} MXN.`} Recoge en Masaryk 295 o recibe en todo México.`
   return {
     title: p.categoria ? `${p.nombre} · ${p.categoria}` : p.nombre,
     description: descripcion.slice(0, 300),

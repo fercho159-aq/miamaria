@@ -170,7 +170,7 @@ export function Encabezado({ categorias }: { categorias: CategoriaMenu[] }) {
             <Link href="/#visitanos" className="group relative col-span-3 block overflow-hidden bg-tinta">
               <Image
                 src="/images/hero-modelo.webp"
-                alt="Visita la tienda Mía María en Masaryk 998"
+                alt="Visita la tienda Mía María en Masaryk 295"
                 fill
                 sizes="22vw"
                 className="object-cover object-[50%_30%] opacity-80 transition duration-[1800ms] ease-out group-hover:scale-105 group-hover:opacity-90"

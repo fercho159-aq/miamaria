@@ -7,7 +7,7 @@ export const urlColeccion = (slug: string) => `/coleccion/${slug}`
 export const urlProducto = (clave: string) => `/producto/${encodeURIComponent(clave)}`
 
 export const descripcionColeccion = (nombre: string) =>
-  `${nombre} Mía María: joyería de autor en plata, acero y chapa de oro. Pide por WhatsApp y recoge en Masaryk 998, Polanco, o recibe en todo México.`
+  `${nombre} Mía María: joyería de autor en plata, acero y chapa de oro. Pide por WhatsApp y recoge en Masaryk 295, Polanco, o recibe en todo México.`
 
 /** Datos de la tienda física (JewelryStore) para Google. */
 export function datosTienda() {
