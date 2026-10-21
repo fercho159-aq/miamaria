@@ -62,7 +62,6 @@ const fotosCasa: ImagenGaleria[] = [
   { src: '/images/anillo-nudo.webp', alt: 'Anillo de nudo dorado con pavé' },
   { src: '/images/hero-modelo.webp', alt: 'Modelo con collares Mía María' },
   { src: '/images/brazalete-turquesa.webp', alt: 'Brazalete con turquesa' },
-  { src: '/images/bolsa-empaque.webp', alt: 'Empaque de regalo Mía María' },
   { src: '/images/collar-corazon.webp', alt: 'Collar con dije de corazón pavé' },
 ]
 
