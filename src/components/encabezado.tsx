@@ -17,7 +17,7 @@ export interface CategoriaMenu {
 }
 
 // Fotos de la casa para completar el menú cuando una categoría aún no tiene foto.
-const FOTOS_CASA = ['/images/aretes-nacar.webp', '/images/anillo-nudo-mano.webp', '/images/brazalete-turquesa.webp', '/images/collar-corazon.webp', '/images/bolsa-empaque.webp']
+const FOTOS_CASA = ['/images/aretes-nacar.webp', '/images/anillo-nudo-mano.webp', '/images/brazalete-turquesa.webp', '/images/collar-corazon.webp']
 
 export function Encabezado({ categorias }: { categorias: CategoriaMenu[] }) {
   const { piezas, setAbierto, listo } = useCarrito()
@@ -55,7 +55,7 @@ export function Encabezado({ categorias }: { categorias: CategoriaMenu[] }) {
   const conFoto = categorias.map((c, i) => ({ ...c, foto: c.imagen ?? FOTOS_CASA[i % FOTOS_CASA.length] }))
   const tarjetas = conFoto.length
     ? conFoto.slice(0, 3)
-    : [{ nombre: 'Nuevas piezas', slug: '', imagen: null, foto: FOTOS_CASA[0] }, { nombre: 'Lo más deseado', slug: '', imagen: null, foto: FOTOS_CASA[1] }, { nombre: 'Para regalar', slug: '', imagen: null, foto: FOTOS_CASA[4] }]
+    : [{ nombre: 'Nuevas piezas', slug: '', imagen: null, foto: FOTOS_CASA[0] }, { nombre: 'Lo más deseado', slug: '', imagen: null, foto: FOTOS_CASA[1] }, { nombre: 'Para regalar', slug: '', imagen: null, foto: FOTOS_CASA[3] }]
   const hrefCat = (slug: string) => (slug ? urlColeccion(slug) : '/catalogo')
 
   return (

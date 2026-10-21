@@ -49,13 +49,6 @@ async function producto() {
     .toFile(out('collar-corazon.webp'))
 }
 
-async function bolsa() {
-  await sharp(ref('WhatsApp Image 2026-10-02 at 9.32.56 AM.jpeg'))
-    .extract({ left: 300, top: 120, width: 1000, height: 900 })
-    .webp({ quality: 82 })
-    .toFile(out('bolsa-empaque.webp'))
-}
-
 // Solo el símbolo (mandala), para el encabezado compacto y el ícono del sitio.
 async function simbolo() {
   const mark = await sharp(out('logo-dorado.png')).extract({ left: 0, top: 0, width: 781, height: 718 }).trim().png().toBuffer()
@@ -96,7 +89,6 @@ await Promise.all([
   cuatroQuintos('anillo-nudo-mano.jpeg', 'anillo-nudo-mano.webp', 60),
   hero(),
   producto(),
-  bolsa(),
   vertical('aretes-nacar.jpeg', 'aretes-nacar.webp', 320),
   vertical('brazalete-turquesa.jpeg', 'brazalete-turquesa.webp', 350),
 ])
