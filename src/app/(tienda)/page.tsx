@@ -54,15 +54,6 @@ const portada: DiapositivaPortada[] = [
     subtitulo: 'Brazaletes con alma mexicana',
     cta: { href: '/catalogo', label: 'Ver brazaletes' },
   },
-  {
-    imagen: '/images/bolsa-empaque.webp',
-    alt: 'Bolsa de regalo negra con el logo dorado de Mía María',
-    posicion: '50% 50%',
-    eyebrow: 'Para regalar',
-    titulo: ['Cada pieza llega', 'lista para sorprender'],
-    subtitulo: 'En nuestro empaque de regalo',
-    cta: { href: '/catalogo', label: 'Elegir un regalo' },
-  },
 ]
 
 const fotosCasa: ImagenGaleria[] = [
