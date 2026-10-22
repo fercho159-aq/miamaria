@@ -188,20 +188,20 @@
  {
   "clave": "MMP010~116",
   "nombre_actual": "Pulsera de caballero negra esferas negras",
-  "nombre": "Pulsera de caballero de esferas negras",
-  "descripcion": "Pulsera de caballero con esferas negras."
+  "nombre": "Pulsera de caballero de obsidiana",
+  "descripcion": "Pulsera de caballero de obsidiana, con esferas negras."
  },
  {
   "clave": "MMP010~115",
   "nombre_actual": "Pulsera de caballero negra de piedras",
-  "nombre": "Pulsera de caballero negra de piedras",
-  "descripcion": "Pulsera de caballero con piedras negras."
+  "nombre": "Pulsera de caballero de piedras de obsidiana",
+  "descripcion": "Pulsera de caballero con piedras de obsidiana."
  },
  {
   "clave": "MMP010~114",
   "nombre_actual": "Pulsera de caballero negra con circulos delgados",
-  "nombre": "Pulsera de caballero de acerina con círculos delgados",
-  "descripcion": "Pulsera de caballero de acerina con círculos delgados."
+  "nombre": "Pulsera de caballero de hematita con círculos delgados",
+  "descripcion": "Pulsera de caballero de hematita con círculos delgados."
  },
  {
   "clave": "MMP010~113",
@@ -411,19 +411,22 @@
   "clave": "MME001~79",
   "nombre_actual": "ARETE CORAZON",
   "nombre": "Arete corazón",
-  "descripcion": "Arete con forma de corazón."
+  "descripcion": "Arete con forma de corazón.",
+  "categoria": "aretes"
  },
  {
   "clave": "MME001~78",
   "nombre_actual": "ARETE BASICO",
   "nombre": "Arete básico",
-  "descripcion": "Arete básico."
+  "descripcion": "Arete básico.",
+  "categoria": "aretes"
  },
  {
   "clave": "MME001~77",
   "nombre_actual": "ARETE COLORES",
   "nombre": "Arete de colores",
-  "descripcion": "Arete de colores."
+  "descripcion": "Arete de colores.",
+  "categoria": "aretes"
  },
  {
   "clave": "MMP007~76",

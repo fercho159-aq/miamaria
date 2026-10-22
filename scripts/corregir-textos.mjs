@@ -2,7 +2,8 @@
 //   node scripts/corregir-textos.mjs db/correcciones/2026-10-22-nombres.json            → solo muestra los cambios
 //   node scripts/corregir-textos.mjs db/correcciones/2026-10-22-nombres.json --aplicar  → los guarda
 // Cada entrada lleva la clave de la tienda ("SKU" o "SKU~id") y el nombre actual: si el
-// producto ya cambió de nombre, se omite en vez de sobrescribirlo.
+// producto ya cambió de nombre, se omite en vez de sobrescribirlo. "categoria" (slug) es opcional y
+// mueve el producto a esa categoría.
 import './env.mjs'
 import fs from 'node:fs'
 import { Pool } from '@neondatabase/serverless'
@@ -29,9 +30,21 @@ for (const e of entradas) {
     omitidos++
     continue
   }
-  console.log(`${aplicar ? 'CAMBIADO' : 'CAMBIARÍA'} ${e.clave}: "${p.nombre}" → "${e.nombre}"`)
+  let categoriaId = null
+  if (e.categoria) {
+    categoriaId = (await pool.query('SELECT id FROM categorias WHERE slug = $1', [e.categoria])).rows[0]?.id
+    if (!categoriaId) {
+      console.log(`OMITIDO  ${e.clave}: no existe la categoría "${e.categoria}"`)
+      omitidos++
+      continue
+    }
+  }
+  console.log(`${aplicar ? 'CAMBIADO' : 'CAMBIARÍA'} ${e.clave}: "${p.nombre}" → "${e.nombre}"${e.categoria ? ` (a ${e.categoria})` : ''}`)
   if (aplicar) {
-    await pool.query('UPDATE productos SET nombre = $1, descripcion = $2, updated_at = NOW() WHERE id = $3', [e.nombre, e.descripcion, p.id])
+    await pool.query(
+      'UPDATE productos SET nombre = $1, descripcion = $2, categoria_id = COALESCE($3, categoria_id), updated_at = NOW() WHERE id = $4',
+      [e.nombre, e.descripcion, categoriaId, p.id],
+    )
   }
   cambiados++
 }
