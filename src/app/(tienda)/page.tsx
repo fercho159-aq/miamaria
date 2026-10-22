@@ -42,7 +42,7 @@ const portada: DiapositivaPortada[] = [
     posicion: '50% 60%',
     eyebrow: 'Anillos',
     titulo: ['Esculturas', 'para tus manos'],
-    subtitulo: 'Oro pulido y pavé',
+    subtitulo: 'Acero y chapa',
     cta: { href: '/catalogo', label: 'Ver anillos' },
   },
   {
@@ -154,8 +154,8 @@ export default async function Inicio() {
             </h2>
             <div className="mt-8 h-px w-32 bg-oro" />
             <p className="mt-8 max-w-md text-lg leading-relaxed text-neutral-600">
-              En Mía María cada pieza se elige por su carácter: metales con baño de oro, nácar, piedras y formas inspiradas en
-              México. Joyería para usar todos los días y para guardar para siempre.
+              En Mía María cada pieza se elige por su carácter: metales con baño de oro, piedras, chapa y acero inoxidable.
+              Piezas para usar todos los días y para guardar para siempre.
             </p>
             <div className="mt-10 flex flex-wrap gap-3">
               <Link href="/catalogo" className="btn-negro">
