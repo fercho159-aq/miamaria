@@ -1,0 +1,620 @@
+[
+ {
+  "clave": "2222",
+  "nombre_actual": "ARETE CEREZA",
+  "nombre": "Arete cereza",
+  "descripcion": "Arete con forma de cereza."
+ },
+ {
+  "clave": "1111",
+  "nombre_actual": "ARETE ANCLA",
+  "nombre": "Arete ancla",
+  "descripcion": "Arete con forma de ancla."
+ },
+ {
+  "clave": "MMP007~145",
+  "nombre_actual": "Pulsera mediana de acero",
+  "nombre": "Pulsera mediana de acero",
+  "descripcion": "Pulsera mediana de acero."
+ },
+ {
+  "clave": "MMP007~144",
+  "nombre_actual": "Pulsera mediana de acero",
+  "nombre": "Pulsera mediana de acero",
+  "descripcion": "Pulsera mediana de acero."
+ },
+ {
+  "clave": "MMP007~143",
+  "nombre_actual": "Pulsera mediana de acero ondulada color dorado corazones",
+  "nombre": "Pulsera mediana de acero ondulada dorada con corazones",
+  "descripcion": "Pulsera mediana de acero ondulada, color dorado, con corazones."
+ },
+ {
+  "clave": "MME002~142",
+  "nombre_actual": "Ear cuffs largo",
+  "nombre": "Ear cuff largo",
+  "descripcion": "Ear cuff largo."
+ },
+ {
+  "clave": "MME002~141",
+  "nombre_actual": "Ear cuffs largo",
+  "nombre": "Ear cuff largo",
+  "descripcion": "Ear cuff largo."
+ },
+ {
+  "clave": "MME002~140",
+  "nombre_actual": "Ear cuffs largo",
+  "nombre": "Ear cuff largo",
+  "descripcion": "Ear cuff largo."
+ },
+ {
+  "clave": "MME002~139",
+  "nombre_actual": "Ear cuffs largo",
+  "nombre": "Ear cuff largo",
+  "descripcion": "Ear cuff largo."
+ },
+ {
+  "clave": "MME001~138",
+  "nombre_actual": "Ear cuff y ear coff chico azul-rosa",
+  "nombre": "Ear cuff chico azul y rosa",
+  "descripcion": "Ear cuff chico en azul y rosa."
+ },
+ {
+  "clave": "MME001~137",
+  "nombre_actual": "Ear cuff y ear coff chico blanco",
+  "nombre": "Ear cuff chico blanco",
+  "descripcion": "Ear cuff chico blanco."
+ },
+ {
+  "clave": "MME001~136",
+  "nombre_actual": "Ear cuff y ear coff chico rosa",
+  "nombre": "Ear cuff chico rosa",
+  "descripcion": "Ear cuff chico rosa."
+ },
+ {
+  "clave": "MME001~135",
+  "nombre_actual": "Ear cuff y ear coff chico",
+  "nombre": "Ear cuff chico",
+  "descripcion": "Ear cuff chico."
+ },
+ {
+  "clave": "MME001~134",
+  "nombre_actual": "Ear cuff y ear coff chico",
+  "nombre": "Ear cuff chico",
+  "descripcion": "Ear cuff chico."
+ },
+ {
+  "clave": "MME001~133",
+  "nombre_actual": "Ear cuff y ear coff chico",
+  "nombre": "Ear cuff chico",
+  "descripcion": "Ear cuff chico."
+ },
+ {
+  "clave": "MME001~132",
+  "nombre_actual": "Ear cuff y ear coff chico plateado corazon",
+  "nombre": "Ear cuff chico plateado con corazón",
+  "descripcion": "Ear cuff chico plateado con corazón."
+ },
+ {
+  "clave": "MMA003~131",
+  "nombre_actual": "Anillo chico de acero",
+  "nombre": "Anillo chico de acero",
+  "descripcion": "Anillo chico de acero."
+ },
+ {
+  "clave": "MMA003~130",
+  "nombre_actual": "Anillo chico de acero Serpiente",
+  "nombre": "Anillo chico de acero serpiente",
+  "descripcion": "Anillo chico de acero con forma de serpiente."
+ },
+ {
+  "clave": "MMA003~129",
+  "nombre_actual": "Anillo chico de acero estrella",
+  "nombre": "Anillo chico de acero estrella",
+  "descripcion": "Anillo chico de acero con forma de estrella."
+ },
+ {
+  "clave": "MMP007~128",
+  "nombre_actual": "Serpiente ondulada",
+  "nombre": "Pulsera serpiente ondulada",
+  "descripcion": "Pulsera mediana con trenzado dorado en forma de serpiente ondulada."
+ },
+ {
+  "clave": "MMAR004~127",
+  "nombre_actual": "Corazones Blancos con orificio en el centro",
+  "nombre": "Arete corazón blanco con orificio al centro",
+  "descripcion": "Arete con forma de corazón, orificio al centro e incrustación de piedritas."
+ },
+ {
+  "clave": "MMAR004~126",
+  "nombre_actual": "óvalos con piedras",
+  "nombre": "Arete óvalo con piedras",
+  "descripcion": "Arete ovalado y elegante con incrustación de piedras."
+ },
+ {
+  "clave": "MMAR004~125",
+  "nombre_actual": "Cuadrado con varias piedras dorado",
+  "nombre": "Arete cuadrado dorado con piedras",
+  "descripcion": "Arete dorado con incrustación de piedras formando un cuadrado."
+ },
+ {
+  "clave": "MMAR004~124",
+  "nombre_actual": "Gris con forma de corazon con orificio en el centro",
+  "nombre": "Arete corazón gris con orificio al centro",
+  "descripcion": "Arete gris con forma de corazón y orificio al centro."
+ },
+ {
+  "clave": "MMAR004",
+  "nombre_actual": "Cuadrado con cuadrados grises",
+  "nombre": "Arete cuadrado con cuadros grises",
+  "descripcion": "Arete cuadrado con incrustación de piedras plateadas."
+ },
+ {
+  "clave": "MMA001~122",
+  "nombre_actual": "Anillo con rueda plana",
+  "nombre": "Anillo con rueda plana",
+  "descripcion": "Anillo circular liso, color plateado."
+ },
+ {
+  "clave": "MMA001~121",
+  "nombre_actual": "Anillo con 2 círculos con textura",
+  "nombre": "Anillo con dos círculos con textura",
+  "descripcion": "Anillo dorado con dos círculos encontrados con textura."
+ },
+ {
+  "clave": "MMA001~120",
+  "nombre_actual": "Anillo con planta con 5 hojas",
+  "nombre": "Anillo con planta de cinco hojas",
+  "descripcion": "Anillo dorado con forma de flor de cinco hojas."
+ },
+ {
+  "clave": "MMA001~119",
+  "nombre_actual": "Anillo con rueda dorada",
+  "nombre": "Anillo con rueda dorada",
+  "descripcion": "Anillo redondo con textura, color dorado."
+ },
+ {
+  "clave": "MMA001~118",
+  "nombre_actual": "Anillo con rueda de plata",
+  "nombre": "Anillo con rueda de plata",
+  "descripcion": "Anillo con rueda de plata."
+ },
+ {
+  "clave": "MMP010~117",
+  "nombre_actual": "Pulsera de caballero negra esferas negras delgadas",
+  "nombre": "Pulsera de caballero de esferas negras delgadas",
+  "descripcion": "Pulsera de caballero con esferas negras delgadas."
+ },
+ {
+  "clave": "MMP010~116",
+  "nombre_actual": "Pulsera de caballero negra esferas negras",
+  "nombre": "Pulsera de caballero de esferas negras",
+  "descripcion": "Pulsera de caballero con esferas negras."
+ },
+ {
+  "clave": "MMP010~115",
+  "nombre_actual": "Pulsera de caballero negra de piedras",
+  "nombre": "Pulsera de caballero negra de piedras",
+  "descripcion": "Pulsera de caballero con piedras negras."
+ },
+ {
+  "clave": "MMP010~114",
+  "nombre_actual": "Pulsera de caballero negra con circulos delgados",
+  "nombre": "Pulsera de caballero de acerina con círculos delgados",
+  "descripcion": "Pulsera de caballero de acerina con círculos delgados."
+ },
+ {
+  "clave": "MMP010~113",
+  "nombre_actual": "Pulsera de caballero negra de circulos",
+  "nombre": "Pulsera de obsidiana",
+  "descripcion": "Pulsera de caballero de obsidiana, con cuentas negras y dije plateado."
+ },
+ {
+  "clave": "MMP010",
+  "nombre_actual": "Pulsera de caballero negra cuadros",
+  "nombre": "Pulsera de caballero negra de cuadros",
+  "descripcion": "Pulsera de caballero negra de cuadros."
+ },
+ {
+  "clave": "MMP007~111",
+  "nombre_actual": "Pulsera mediana de acero moños en el centro",
+  "nombre": "Pulsera mediana de acero con moños al centro",
+  "descripcion": "Pulsera mediana de acero con moños al centro."
+ },
+ {
+  "clave": "MMP007~110",
+  "nombre_actual": "Pulsera Mediana de Acero con corazón",
+  "nombre": "Pulsera mediana de acero con corazón",
+  "descripcion": "Pulsera mediana de acero dorado con forma de cuerda y corazón."
+ },
+ {
+  "clave": "MMP007~109",
+  "nombre_actual": "Pulsera Mediana de Acero circulos",
+  "nombre": "Pulsera mediana de acero de círculos",
+  "descripcion": "Pulsera mediana de acero con círculos delgados."
+ },
+ {
+  "clave": "MME001~108",
+  "nombre_actual": "EarCuff dorado con piedras de colores grandes",
+  "nombre": "Ear cuff dorado con piedras de colores grandes",
+  "descripcion": "Ear cuff dorado con piedras de colores grandes."
+ },
+ {
+  "clave": "MME001~107",
+  "nombre_actual": "EarCuff dorado con piedras de colores",
+  "nombre": "Ear cuff dorado con piedras de colores",
+  "descripcion": "Ear cuff dorado con piedras de colores."
+ },
+ {
+  "clave": "MME001~106",
+  "nombre_actual": "EarCuff dorado con plateado rectangular",
+  "nombre": "Ear cuff dorado y plateado rectangular",
+  "descripcion": "Ear cuff rectangular, dorado con plateado."
+ },
+ {
+  "clave": "MME001~105",
+  "nombre_actual": "EarCuff plateado con piedras",
+  "nombre": "Ear cuff plateado con piedras",
+  "descripcion": "Ear cuff plateado con piedras."
+ },
+ {
+  "clave": "MME001~104",
+  "nombre_actual": "EarCuff dorado con plateado",
+  "nombre": "Ear cuff dorado y plateado",
+  "descripcion": "Ear cuff dorado con plateado y forma de plantas."
+ },
+ {
+  "clave": "MME001~103",
+  "nombre_actual": "EarCuff dorado con circulos",
+  "nombre": "Ear cuff dorado con círculos",
+  "descripcion": "Ear cuff dorado con círculos."
+ },
+ {
+  "clave": "MME001~102",
+  "nombre_actual": "EarCuff dorado con perlas",
+  "nombre": "Ear cuff dorado con perlas",
+  "descripcion": "Ear cuff dorado con perlas."
+ },
+ {
+  "clave": "MME001~101",
+  "nombre_actual": "EarCuff dorado con forma de cruz",
+  "nombre": "Ear cuff dorado con forma de cruz",
+  "descripcion": "Ear cuff dorado con forma de cruz."
+ },
+ {
+  "clave": "MMA003~100",
+  "nombre_actual": "Anillo de Acero Chico con forma de Corazón",
+  "nombre": "Anillo chico de acero con forma de corazón",
+  "descripcion": "Anillo chico de acero con forma de corazón."
+ },
+ {
+  "clave": "MMA003~99",
+  "nombre_actual": "Anillo de Acero Chico con forma Ovalo",
+  "nombre": "Anillo chico de acero con forma de óvalo",
+  "descripcion": "Anillo chico de acero plateado con forma de óvalo."
+ },
+ {
+  "clave": "MMA003~98",
+  "nombre_actual": "Anillo de Acero Chico Serpiente",
+  "nombre": "Anillo chico de acero serpiente",
+  "descripcion": "Anillo chico de acero dorado con forma de serpiente."
+ },
+ {
+  "clave": "MMA003~97",
+  "nombre_actual": "Anillo de Acero Chico",
+  "nombre": "Anillo chico de acero corazón",
+  "descripcion": "Anillo chico de acero con forma de corazón."
+ },
+ {
+  "clave": "MMA003~96",
+  "nombre_actual": "Anillo de Acero Chico",
+  "nombre": "Anillo chico de acero con estrellas rosas",
+  "descripcion": "Anillo chico de acero dorado con estrellas rosas."
+ },
+ {
+  "clave": "MME002~95",
+  "nombre_actual": "Conjunto de estrellas",
+  "nombre": "Ear cuff largo de estrellas",
+  "descripcion": "Ear cuff largo con conjunto de estrellas."
+ },
+ {
+  "clave": "MMP007~94",
+  "nombre_actual": "Pretzel cadena plateada",
+  "nombre": "Pulsera pretzel de cadena plateada",
+  "descripcion": "Pulsera de cadena plateada con eslabones en forma de pretzel."
+ },
+ {
+  "clave": "MMP007~93",
+  "nombre_actual": "Trensado con hilos",
+  "nombre": "Pulsera trenzada con hilos",
+  "descripcion": "Pulsera trenzada con hilos."
+ },
+ {
+  "clave": "MMP007~92",
+  "nombre_actual": "Cadena simple dorada",
+  "nombre": "Pulsera de cadena simple dorada",
+  "descripcion": "Pulsera de cadena simple, color dorado."
+ },
+ {
+  "clave": "MMP007~91",
+  "nombre_actual": "Cadena plateada con olas",
+  "nombre": "Pulsera de cadena plateada con olas",
+  "descripcion": "Pulsera de cadena plateada con olas."
+ },
+ {
+  "clave": "MME001~90",
+  "nombre_actual": "Dorado con forma de hoja",
+  "nombre": "Ear cuff dorado con forma de hoja",
+  "descripcion": "Ear cuff dorado con forma de hoja."
+ },
+ {
+  "clave": "MME001~89",
+  "nombre_actual": "Dorado con perlas",
+  "nombre": "Ear cuff dorado con perlas",
+  "descripcion": "Ear cuff dorado con perlas."
+ },
+ {
+  "clave": "MME001~88",
+  "nombre_actual": "Con ochos alrededor",
+  "nombre": "Ear cuff con ochos alrededor",
+  "descripcion": "Ear cuff con ochos alrededor."
+ },
+ {
+  "clave": "MME001~87",
+  "nombre_actual": "dorado con rocas verdes",
+  "nombre": "Ear cuff dorado con piedras verdes",
+  "descripcion": "Ear cuff dorado con piedras verdes."
+ },
+ {
+  "clave": "MME002",
+  "nombre_actual": "Froma de conecciones tringulares con perlas",
+  "nombre": "Ear cuff largo de conexiones triangulares con perlas",
+  "descripcion": "Ear cuff largo con conexiones triangulares y perlas."
+ },
+ {
+  "clave": "MME001~85",
+  "nombre_actual": "Ear cuff chico de serpiente",
+  "nombre": "Ear cuff chico de serpiente",
+  "descripcion": "Ear cuff chico con forma de serpiente."
+ },
+ {
+  "clave": "MMA001~84",
+  "nombre_actual": "Anillo con piedra verde en forma de gota",
+  "nombre": "Anillo con piedra verde en forma de gota",
+  "descripcion": "Anillo con piedra verde en forma de gota."
+ },
+ {
+  "clave": "MMA001~83",
+  "nombre_actual": "Anillo dorado de hojas entrelazadas",
+  "nombre": "Anillo dorado de hojas entrelazadas",
+  "descripcion": "Anillo dorado de hojas entrelazadas."
+ },
+ {
+  "clave": "MMA001~82",
+  "nombre_actual": "Anillo mariposa dorado",
+  "nombre": "Anillo mariposa dorado",
+  "descripcion": "Anillo dorado con forma de mariposa."
+ },
+ {
+  "clave": "MMA001~81",
+  "nombre_actual": "Anillo con piedra ovalada amarilla",
+  "nombre": "Anillo con piedra ovalada amarilla",
+  "descripcion": "Anillo con piedra ovalada amarilla."
+ },
+ {
+  "clave": "MMA001",
+  "nombre_actual": "Anillo con piedra ovalada verde jaspeada",
+  "nombre": "Anillo con piedra ovalada verde jaspeada",
+  "descripcion": "Anillo con piedra ovalada verde jaspeada."
+ },
+ {
+  "clave": "MME001~79",
+  "nombre_actual": "ARETE CORAZON",
+  "nombre": "Arete corazón",
+  "descripcion": "Arete con forma de corazón."
+ },
+ {
+  "clave": "MME001~78",
+  "nombre_actual": "ARETE BASICO",
+  "nombre": "Arete básico",
+  "descripcion": "Arete básico."
+ },
+ {
+  "clave": "MME001~77",
+  "nombre_actual": "ARETE COLORES",
+  "nombre": "Arete de colores",
+  "descripcion": "Arete de colores."
+ },
+ {
+  "clave": "MMP007~76",
+  "nombre_actual": "Pulsera mediana de acero dorado con olas",
+  "nombre": "Pulsera mediana de acero dorado con olas",
+  "descripcion": "Pulsera mediana de acero dorado con olas."
+ },
+ {
+  "clave": "MMP007~75",
+  "nombre_actual": "Pulsera mediana de acero con ojo blanco al centro",
+  "nombre": "Pulsera mediana de acero con ojo blanco al centro",
+  "descripcion": "Pulsera mediana de acero con ojo blanco al centro."
+ },
+ {
+  "clave": "MMP007~74",
+  "nombre_actual": "Pulsera mediana de acero ondulada color dorado",
+  "nombre": "Pulsera mediana de acero ondulada dorada",
+  "descripcion": "Pulsera mediana de acero ondulada, color dorado."
+ },
+ {
+  "clave": "MMP011~73",
+  "nombre_actual": "Pulsera caballero grande con piedras en forma de rueda pequeña",
+  "nombre": "Pulsera de caballero grande con piedras en forma de rueda pequeña",
+  "descripcion": "Pulsera de caballero grande con piedras en forma de rueda pequeña."
+ },
+ {
+  "clave": "MMP011~72",
+  "nombre_actual": "Pulsera caballero grande cadena delgada de plata",
+  "nombre": "Pulsera de caballero grande de cadena delgada de plata",
+  "descripcion": "Pulsera de caballero grande de cadena delgada de plata."
+ },
+ {
+  "clave": "MMP011~71",
+  "nombre_actual": "Pulsera caballero grande cadena gruesa",
+  "nombre": "Pulsera de caballero grande de cadena gruesa",
+  "descripcion": "Pulsera de caballero grande de cadena gruesa."
+ },
+ {
+  "clave": "MMP011~70",
+  "nombre_actual": "Pulsera caballero grande de cuero con broceh de sepiente pequeño",
+  "nombre": "Pulsera de caballero grande de cuero con broche de serpiente",
+  "descripcion": "Pulsera de caballero grande de cuero con broche pequeño de serpiente."
+ },
+ {
+  "clave": "MMP011~69",
+  "nombre_actual": "Pulsera caballero grande con dorado y cuero pero enredado como trensa",
+  "nombre": "Pulsera de caballero grande trenzada de cuero y dorado",
+  "descripcion": "Pulsera de caballero grande de cuero y dorado, entrelazados como trenza."
+ },
+ {
+  "clave": "MMP011~68",
+  "nombre_actual": "Pulsera caballero grande con simbolo de hoja",
+  "nombre": "Pulsera de caballero grande con símbolo de hoja",
+  "descripcion": "Pulsera de caballero grande con símbolo de hoja."
+ },
+ {
+  "clave": "MMP011",
+  "nombre_actual": "Pulsera caballero grande de cuero negro con dorado",
+  "nombre": "Pulsera de caballero grande de cuero negro con dorado",
+  "descripcion": "Pulsera de caballero grande de cuero negro con dorado."
+ },
+ {
+  "clave": "MME001~66",
+  "nombre_actual": "Ear cuff chico dorado con cristal blanco dentro",
+  "nombre": "Ear cuff chico dorado con cristal blanco",
+  "descripcion": "Ear cuff chico dorado con cristal blanco al centro."
+ },
+ {
+  "clave": "MME001~65",
+  "nombre_actual": "Ear cuff chico azul con dorado",
+  "nombre": "Ear cuff chico azul con dorado",
+  "descripcion": "Ear cuff chico azul con dorado."
+ },
+ {
+  "clave": "MME001~64",
+  "nombre_actual": "Ear cuff chico dorado con negro",
+  "nombre": "Ear cuff chico dorado con negro",
+  "descripcion": "Ear cuff chico dorado con negro."
+ },
+ {
+  "clave": "MME001~63",
+  "nombre_actual": "Ear cuff chico ojo turco azul",
+  "nombre": "Ear cuff chico con ojo turco azul",
+  "descripcion": "Ear cuff chico con ojo turco azul."
+ },
+ {
+  "clave": "MME001~62",
+  "nombre_actual": "Ear cuff chico texturizado grueso",
+  "nombre": "Ear cuff chico texturizado grueso",
+  "descripcion": "Ear cuff chico texturizado grueso."
+ },
+ {
+  "clave": "MME001~61",
+  "nombre_actual": "Ear cuff chico de serpiente con diamante",
+  "nombre": "Ear cuff chico de serpiente con diamante",
+  "descripcion": "Ear cuff chico con forma de serpiente y diamante."
+ },
+ {
+  "clave": "MME001",
+  "nombre_actual": "Ear cuff chico plateado con perlas",
+  "nombre": "Ear cuff chico plateado con perlas",
+  "descripcion": "Ear cuff chico plateado con perlas."
+ },
+ {
+  "clave": "MMA003~59",
+  "nombre_actual": "Anillo chico de acero oro con forma de corazon",
+  "nombre": "Anillo chico de acero color oro con forma de corazón",
+  "descripcion": "Anillo chico de acero color oro con forma de corazón."
+ },
+ {
+  "clave": "MMA003~58",
+  "nombre_actual": "Anillo chico de acero corazon con bola rosa en medio",
+  "nombre": "Anillo chico de acero corazón con bola rosa al centro",
+  "descripcion": "Anillo chico de acero con forma de corazón y bola rosa al centro."
+ },
+ {
+  "clave": "MMA003~57",
+  "nombre_actual": "Anillo chico de acero forma de corazones pegados",
+  "nombre": "Anillo chico de acero con corazones unidos",
+  "descripcion": "Anillo chico de acero con forma de corazones unidos."
+ },
+ {
+  "clave": "MMA003~56",
+  "nombre_actual": "Anillo chico de acero estrella de colores",
+  "nombre": "Anillo chico de acero estrella de colores",
+  "descripcion": "Anillo chico de acero con estrella de colores."
+ },
+ {
+  "clave": "MMA003~55",
+  "nombre_actual": "ANILLO SOL",
+  "nombre": "Anillo sol",
+  "descripcion": "Anillo con forma de sol."
+ },
+ {
+  "clave": "MMA003~54",
+  "nombre_actual": "ANILLO MOÑO",
+  "nombre": "Anillo moño",
+  "descripcion": "Anillo con forma de moño."
+ },
+ {
+  "clave": "MMA003~53",
+  "nombre_actual": "ANILLO HEBILLA",
+  "nombre": "Anillo hebilla",
+  "descripcion": "Anillo con forma de hebilla."
+ },
+ {
+  "clave": "MMA003",
+  "nombre_actual": "ANILLO BASICO",
+  "nombre": "Anillo básico",
+  "descripcion": "Anillo básico."
+ },
+ {
+  "clave": "MMP007~51",
+  "nombre_actual": "PULCERA ONDULADA",
+  "nombre": "Pulsera ondulada",
+  "descripcion": "Pulsera ondulada."
+ },
+ {
+  "clave": "MMPR001~50",
+  "nombre_actual": "BROCHE HOJA",
+  "nombre": "Broche hoja",
+  "descripcion": "Broche con forma de hoja."
+ },
+ {
+  "clave": "MMP007~49",
+  "nombre_actual": "PULCERA CORAZON",
+  "nombre": "Pulsera corazón",
+  "descripcion": "Pulsera con corazón."
+ },
+ {
+  "clave": "MMPR001~48",
+  "nombre_actual": "BROCHE PLUMA",
+  "nombre": "Broche pluma",
+  "descripcion": "Broche con forma de pluma."
+ },
+ {
+  "clave": "MMP007~47",
+  "nombre_actual": "PULCERA COBRA",
+  "nombre": "Pulsera cobra",
+  "descripcion": "Pulsera con forma de cobra."
+ },
+ {
+  "clave": "MMPR001",
+  "nombre_actual": "BROCHE FLOR",
+  "nombre": "Broche flor",
+  "descripcion": "Broche con forma de flor."
+ },
+ {
+  "clave": "MMP007",
+  "nombre_actual": "PULCERA DRAGON",
+  "nombre": "Pulsera dragón",
+  "descripcion": "Pulsera con dragón."
+ }
+]
