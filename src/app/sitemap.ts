@@ -9,7 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { productos, colecciones } = await getUrlsSitemap()
   const ultimo = productos[0]?.actualizado ?? new Date()
   return [
-    { url: abs('/'), lastModified: ultimo, changeFrequency: 'weekly', priority: 1, images: [abs('/images/collar-cubano.webp')] },
+    { url: abs('/'), lastModified: ultimo, changeFrequency: 'weekly', priority: 1, images: [abs('/images/modelo-mia-maria.webp')] },
     { url: abs('/catalogo'), lastModified: ultimo, changeFrequency: 'daily', priority: 0.9 },
     ...colecciones.map((c) => ({
       url: abs(urlColeccion(c.slug)),

@@ -30,6 +30,11 @@ async function logo() {
 }
 
 // Fotos de producto en maniquí (iPhone, convertidas de HEIC a JPG) → 4:5, sin el aro de luz.
+// Modelo con el collar y el ear cuff (1500x2000).
+async function modelo() {
+  await sharp(ref('modelo-mia-maria.jpg')).webp({ quality: 90 }).toFile(out('modelo-mia-maria.webp'))
+}
+
 async function collarCubano() {
   await sharp(ref('IMG_6884.jpg')).extract({ left: 760, top: 1300, width: 3400, height: 4250 }).resize({ width: 1400 }).webp({ quality: 88 }).toFile(out('collar-cubano.webp'))
 }
@@ -68,7 +73,7 @@ async function cuatroQuintos(origen, destino, top) {
 
 // Imagen para compartir en redes (1200x630): foto a la izquierda, logo sobre marfil.
 async function og() {
-  const foto = await sharp(out('collar-cubano.webp')).resize({ width: 600, height: 630, fit: 'cover', position: 'centre' }).toBuffer()
+  const foto = await sharp(out('modelo-mia-maria.webp')).resize({ width: 600, height: 630, fit: 'cover', position: 'top' }).toBuffer()
   const marca = await sharp(out('logo-dorado.png')).resize({ height: 330 }).toBuffer()
   await sharp({ create: { width: 1200, height: 630, channels: 3, background: '#f7f5f1' } })
     .composite([
@@ -83,6 +88,7 @@ await Promise.all([
   logo(),
   cuatroQuintos('anillo-nudo.jpeg', 'anillo-nudo.webp', 70),
   cuatroQuintos('anillo-nudo-mano.jpeg', 'anillo-nudo-mano.webp', 60),
+  modelo(),
   collarCubano(),
   earCuff(),
   producto(),

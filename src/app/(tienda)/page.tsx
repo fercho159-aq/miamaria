@@ -19,9 +19,9 @@ export const metadata: Metadata = {
 
 const portada: DiapositivaPortada[] = [
   {
-    imagen: '/images/collar-cubano.webp',
-    alt: 'Collar de eslabón cubano dorado Mía María',
-    posicion: '50% 40%',
+    imagen: '/images/modelo-mia-maria.webp',
+    alt: 'Modelo con collar de eslabón cubano y ear cuff Mía María',
+    posicion: '50% 35%',
     titulo: ['Ahora presentes en', 'Masaryk 295'],
     subtitulo: 'Conoce nuestros productos',
     cta: { href: '/catalogo', label: 'Ver catálogo' },
@@ -60,6 +60,7 @@ const fotosCasa: ImagenGaleria[] = [
   { src: '/images/aretes-nacar.webp', alt: 'Aretes de nácar con hoja de oro' },
   { src: '/images/anillo-nudo-mano.webp', alt: 'Anillo de nudo dorado puesto' },
   { src: '/images/anillo-nudo.webp', alt: 'Anillo de nudo dorado con pavé' },
+  { src: '/images/modelo-mia-maria.webp', alt: 'Modelo con collar y ear cuff Mía María' },
   { src: '/images/collar-cubano.webp', alt: 'Collar de eslabón cubano dorado' },
   { src: '/images/ear-cuff.webp', alt: 'Ear cuff dorado de eslabones con zirconias' },
   { src: '/images/brazalete-turquesa.webp', alt: 'Brazalete con turquesa' },
