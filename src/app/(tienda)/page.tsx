@@ -94,7 +94,7 @@ export default async function Inicio() {
       <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6">
         <div className="mb-14 flex flex-col items-center text-center">
           <p className="eyebrow text-oro-oscuro">Selección de la casa</p>
-          <h2 className="mt-3 font-serif text-4xl sm:text-6xl">Piezas destacadas</h2>
+          <h2 className="mt-3 font-serif text-4xl sm:text-6xl">Piezas Destacadas</h2>
           <div className="filete-oro mt-6 w-40" />
         </div>
         {vitrina.length ? (
