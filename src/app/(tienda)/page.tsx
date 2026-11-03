@@ -19,9 +19,9 @@ export const metadata: Metadata = {
 
 const portada: DiapositivaPortada[] = [
   {
-    imagen: '/images/modelo-mia-maria.webp',
-    alt: 'Modelo con collar de eslabón cubano y ear cuff Mía María',
-    posicion: '50% 35%',
+    imagen: '/images/modelo-aretes-flor.webp',
+    alt: 'Modelo con arete de flor dorada y collar de eslabón cubano Mía María',
+    posicion: '50% 40%',
     titulo: ['Ahora presentes en', 'Masaryk 295'],
     subtitulo: 'Conoce nuestros productos',
     cta: { href: '/catalogo', label: 'Ver catálogo' },
