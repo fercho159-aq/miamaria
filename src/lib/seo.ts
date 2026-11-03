@@ -18,7 +18,7 @@ export function datosTienda() {
     name: 'Mía María · Arte México',
     url: sitio.url,
     logo: abs('/images/logo-dorado.png'),
-    image: [abs('/images/og-miamaria.jpg'), abs('/images/modelo-mia-maria.webp')],
+    image: [abs('/images/og-miamaria.jpg'), abs('/images/modelo-aretes-flor.webp')],
     description: sitio.descripcion,
     priceRange: '$$',
     currenciesAccepted: 'MXN',

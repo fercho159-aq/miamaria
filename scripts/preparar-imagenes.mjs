@@ -30,9 +30,9 @@ async function logo() {
 }
 
 // Fotos de producto en maniquí (iPhone, convertidas de HEIC a JPG) → 4:5, sin el aro de luz.
-// Modelo con el collar y el ear cuff (1500x2000).
+// Modelo con el arete de flor dorada y el collar (1500x2000).
 async function modelo() {
-  await sharp(ref('modelo-mia-maria.jpg')).webp({ quality: 90 }).toFile(out('modelo-mia-maria.webp'))
+  await sharp(ref('modelo-aretes-flor.jpg')).resize({ width: 1500, height: 2000 }).webp({ quality: 82 }).toFile(out('modelo-aretes-flor.webp'))
 }
 
 async function collarCubano() {
@@ -73,7 +73,7 @@ async function cuatroQuintos(origen, destino, top) {
 
 // Imagen para compartir en redes (1200x630): foto a la izquierda, logo sobre marfil.
 async function og() {
-  const foto = await sharp(out('modelo-mia-maria.webp')).resize({ width: 600, height: 630, fit: 'cover', position: 'top' }).toBuffer()
+  const foto = await sharp(out('modelo-aretes-flor.webp')).resize({ width: 600, height: 630, fit: 'cover', position: 'top' }).toBuffer()
   const marca = await sharp(out('logo-dorado.png')).resize({ height: 330 }).toBuffer()
   await sharp({ create: { width: 1200, height: 630, channels: 3, background: '#f7f5f1' } })
     .composite([

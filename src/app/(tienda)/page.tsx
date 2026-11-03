@@ -60,7 +60,7 @@ const fotosCasa: ImagenGaleria[] = [
   { src: '/images/aretes-nacar.webp', alt: 'Aretes de nácar con hoja de oro' },
   { src: '/images/anillo-nudo-mano.webp', alt: 'Anillo de nudo dorado puesto' },
   { src: '/images/anillo-nudo.webp', alt: 'Anillo de nudo dorado con pavé' },
-  { src: '/images/modelo-mia-maria.webp', alt: 'Modelo con collar y ear cuff Mía María' },
+  { src: '/images/modelo-aretes-flor.webp', alt: 'Modelo con arete de flor dorada y collar Mía María' },
   { src: '/images/collar-cubano.webp', alt: 'Collar de eslabón cubano dorado' },
   { src: '/images/ear-cuff.webp', alt: 'Ear cuff dorado de eslabones con zirconias' },
   { src: '/images/brazalete-turquesa.webp', alt: 'Brazalete con turquesa' },
