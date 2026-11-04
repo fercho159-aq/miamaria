@@ -169,7 +169,7 @@ export function Encabezado({ categorias }: { categorias: CategoriaMenu[] }) {
 
             <Link href="/#visitanos" className="group relative col-span-3 block overflow-hidden bg-tinta">
               <Image
-                src="/images/modelo-aretes-flor.webp"
+                src="/images/modelo-arete-flor.webp"
                 alt="Visita la tienda Mía María en Masaryk 295"
                 fill
                 sizes="22vw"
